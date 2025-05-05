@@ -1,0 +1,1 @@
+web: java -jar target/ProyectoEsSalud-1.0.jar

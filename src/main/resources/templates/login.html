@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.com">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de sesión y Registro</title>
+    <link rel='stylesheet' href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+    <link rel="icon" href="/images/icono.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/login.css">}
+</head>
+
+<body>
+<main class="content">
+    <div class="carousel-container">
+        <div class="carousel">
+            <div class="carousel-item active">
+                <img src="/images/slider1.jpg" alt="slider 1">
+                <div class="carousel-buttons">
+                    <button onclick="showImage(0)">◉</button>
+                    <button onclick="showImage(1)">○</button>
+                    <button onclick="showImage(2)">○</button>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="/images/slider2.jpg" alt="slider 2">
+                <div class="carousel-buttons">
+                    <button onclick="showImage(0)">○</button>
+                    <button onclick="showImage(1)">◉</button>
+                    <button onclick="showImage(2)">○</button>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="/images/slider3.jpg" alt="slider 3">
+                <div class="carousel-buttons">
+                    <button onclick="showImage(0)">○</button>
+                    <button onclick="showImage(1)">○</button>
+                    <button onclick="showImage(2)">◉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-wrapper">
+        <div class="container">
+
+            <!-- Formulario de Inicio de Sesión -->
+            <div class="form-container login-container">
+                <h1>¡Bienvenidos!</h1>
+                <form th:action="@{/essalud/login}" method="post">
+                    <p>Correo electrónico:</p>
+                    <input type="email" name="correo" placeholder="Ingrese su correo..." required>
+                    <br>
+                    <p>Contraseña:</p>
+                    <label class="password-label">
+                        <input type="password" name="contrasena" id="pass" placeholder="Ingresa la contraseña..." required>
+                        <span class="show-btn"><i class="fas fa-eye"></i></span>
+                    </label>
+                    <button type="submit">Iniciar sesión</button>
+                    <p class="switch-form">¿No tienes cuenta? <a href="#" id="show-register">Regístrate ahora</a></p>
+                </form>
+            </div>
+
+            <!-- Formulario de Registro -->
+            <div class="form-container register-container">
+                <h1>Registro de cuenta</h1>
+                <form th:action="@{/essalud/registrar}" method="post" id="registerForm">
+                    <input type="text" name="nombre" placeholder="Nombres" required>
+                    <input type="text" name="apellido" placeholder="Apellidos" required>
+                    <input type="text" name="dni" placeholder="DNI" pattern="[0-9]{8}" title="Debe tener 8 dígitos" required>
+                    <input type="email" name="correo" placeholder="Correo electrónico" required>
+                    <label class="password-label">
+                        <input type="password" name="contrasena" id="register-pass" placeholder="Contraseña" required>
+                        <span class="show-btn"><i class="fas fa-eye"></i></span>
+                    </label>
+                    <button type="submit">Registrarse</button>
+                    <p class="switch-form">¿Ya tienes una cuenta? <a href="#" id="show-login">Inicia sesión aquí</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="/js/funcionesLogin.js"></script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Inicio de sesión
+        const passField = document.getElementById("pass");
+        const showBtn = document.querySelector(".login-container .password-label .show-btn i");
+
+        showBtn.onclick = () => {
+            if (passField.type === "password") {
+                passField.type = "text";
+                showBtn.classList.remove("fa-eye");
+                showBtn.classList.add("fa-eye-slash");
+            } else {
+                passField.type = "password";
+                showBtn.classList.remove("fa-eye-slash");
+                showBtn.classList.add("fa-eye");
+            }
+        };
+
+        // Registro
+        const registerPassField = document.getElementById("register-pass");
+        const registerShowBtn = document.querySelector(".register-container .password-label .show-btn i");
+
+        registerShowBtn.onclick = () => {
+            if (registerPassField.type === "password") {
+                registerPassField.type = "text";
+                registerShowBtn.classList.remove("fa-eye");
+                registerShowBtn.classList.add("fa-eye-slash");
+            } else {
+                registerPassField.type = "password";
+                registerShowBtn.classList.remove("fa-eye-slash");
+                registerShowBtn.classList.add("fa-eye");
+            }
+        };
+    });
+</script>
+
+</body>
+
+</html>

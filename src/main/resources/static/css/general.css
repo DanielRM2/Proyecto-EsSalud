@@ -1,0 +1,63 @@
+/* Estilos generales */
+body {
+    background-color: #e0e7ec;
+}
+
+/* Barra lateral */
+.barra-lateral {
+    background-color: #006db1;
+    height: 650px;
+    color: white;
+    padding: 20px;
+    margin-top: 20px;
+    margin-left: 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Foto de perfil */
+.foto-perfil {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+}
+
+/* Botones del menú */
+.boton-menu {
+    background-color: white;
+    color: black;
+    margin-bottom: 25px;
+    width: 100%;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: left;
+    transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.boton-menu:hover {
+    background-color: #ffffff;
+    color: #007bff;
+    box-shadow: inset 0 0 0 1.4px #007bff;
+}
+
+.boton-menu.activo {
+    background-color: black;
+    color: white;
+}
+
+/* Pie de la barra lateral */
+.pie-barra {
+    margin-top: auto;
+    text-align: center;
+}
+
+.logo-essalud {
+    width: 170px;
+    height: 170px;
+    object-fit: cover;
+}
+
+

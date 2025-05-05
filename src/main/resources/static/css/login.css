@@ -1,0 +1,259 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    background-color: #0075BE;
+    padding: 0;
+}
+
+main.content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.carousel-container {
+    position: relative;
+    flex: 5.2;
+    height: 700px;
+    max-width: 100%;
+}
+
+.carousel {
+    position: relative;
+    display: flex;
+    width: 100%;
+}
+
+.carousel-item {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    transition: opacity 1s ease-in-out, visibility 0s 1s;
+    visibility: hidden;
+}
+
+.carousel-item.active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 1s ease-in-out;
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 700px;
+    object-fit: cover;  /* Ajustar las imágenes sin deformarlas */
+}
+
+.carousel-buttons {
+    position: absolute;
+    bottom: 6%;
+    left: 50%;
+    transform: translateX(-50%);  /* Centra los botones horizontalmente */
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.carousel-buttons button {
+    font-size: 1.5rem;
+    padding: 10px 20px;
+    background-color: rgba(0, 123, 255, 0);
+    color: white;
+    border: none;
+    border-radius: 47%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center;
+    justify-content: center;
+}
+
+.carousel-buttons button:hover {
+    background-color: rgba(0, 123, 255, 0.3);  /* Fondo azul más intenso al pasar el ratón */
+}
+
+.form-wrapper {
+    flex: 4.8; /* 48% del ancho */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 700px;
+    max-width: 100%;
+}
+
+.container {
+    position: relative;
+    width: 400px;
+    height: 500px;
+    perspective: 1000px;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #0075be;
+    border-radius: 10px;
+    backface-visibility: hidden;
+    transition: transform 0.8s;
+}
+
+.login-container, .register-container {
+    color: white; /* Texto blanco */
+}
+
+.login-container {
+    transform: rotateY(0deg);
+}
+
+.register-container {
+    transform: rotateY(180deg);
+}
+
+.container.rotate .login-container {
+    transform: rotateY(-180deg);
+}
+
+.container.rotate .register-container {
+    transform: rotateY(0deg);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+
+input {
+    width: 98%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: #000000;
+
+}
+
+input:focus {
+    border-color: #007bff;
+    background-color: #ededed;
+}
+
+.password-label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding-right: 10px;
+    height: 37px;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.password-label input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 10px;
+    color: #000000;
+    outline: none;
+    font-size: 13px;
+}
+
+.password-label input:focus {
+    background-color: #ededed;
+}
+
+.password-label .show-btn {
+    color: #000000;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.3s;
+}
+
+.password-label .show-btn:hover {
+    color: #000000;
+}
+
+button {
+    margin-top: 20px;
+    width: 100%;
+    font-size: 1rem;
+    padding: 10px;
+    background: #000000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #272727;
+}
+
+.switch-form {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.switch-form a {
+    color: #d1d1d1;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.switch-form a:hover {
+    text-decoration: underline;
+}
+
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+main.content, .carousel-container, .form-wrapper, .container {
+    animation: fadeIn 0.7s ease-out forwards;
+    opacity: 0;
+}
+
+.carousel-container, .form-wrapper {
+    animation-delay: 0.5s;
+}
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 2s ease-out;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+
