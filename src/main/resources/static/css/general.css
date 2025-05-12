@@ -8,8 +8,9 @@ body {
     background-color: #006db1;
     height: 650px;
     color: white;
-    padding: 20px;
+    padding: 25px;
     margin-top: 20px;
+    margin-right: 10px;
     margin-left: 10px;
     border-radius: 10px;
     display: flex;
@@ -19,6 +20,7 @@ body {
 
 /* Foto de perfil */
 .foto-perfil {
+    align-items: center;
     width: 120px;
     height: 120px;
     object-fit: cover;
@@ -50,14 +52,16 @@ body {
 
 /* Pie de la barra lateral */
 .pie-barra {
-    margin-top: auto;
     text-align: center;
 }
 
 .logo-essalud {
-    width: 170px;
-    height: 170px;
-    object-fit: cover;
-}
+    width: 100%;
+    max-width: 130px; /* tamaño máximo para que no crezca demasiado */
+    aspect-ratio: 1 / 1; /* asegura que siempre sea cuadrada */
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
 
+}
 

@@ -78,6 +78,58 @@ public class IUsuarioImpl implements IUsuario {
     }
 
     @Override
+    public Usuario obtenerPorDni(String dni) {
+        Usuario usuario = null;
+        try {
+            Connection con = ConexionBD.getConexion();
+            String sql = "SELECT * FROM Usuario WHERE dni = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, dni);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                usuario = new Usuario();
+                usuario.setIdUsuario(rs.getInt("idUsuario"));
+                usuario.setNombre(rs.getString("nombre"));
+                usuario.setApellido(rs.getString("apellido"));
+                usuario.setDni(rs.getString("dni"));
+                usuario.setCorreo(rs.getString("correo"));
+                usuario.setContrasena(rs.getString("contrasena"));
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return usuario;
+    }
+
+    @Override
+    public Usuario obtenerPorCorreo(String correo) {
+        Usuario usuario = null;
+        try {
+            Connection con = ConexionBD.getConexion();
+            String sql = "SELECT * FROM Usuario WHERE correo = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, correo);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                usuario = new Usuario();
+                usuario.setIdUsuario(rs.getInt("idUsuario"));
+                usuario.setNombre(rs.getString("nombre"));
+                usuario.setApellido(rs.getString("apellido"));
+                usuario.setDni(rs.getString("dni"));
+                usuario.setCorreo(rs.getString("correo"));
+                usuario.setContrasena(rs.getString("contrasena"));
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return usuario;
+    }
+
+    @Override
     public Usuario obtenerPorId(int idUsuario) {
         Usuario usuario = null;
         try {

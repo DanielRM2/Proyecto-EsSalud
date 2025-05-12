@@ -16,7 +16,20 @@ public class ServiceUsuario {
     }
 
     public boolean registrar(Usuario usuario) {
+        // Aquí debes verificar si el DNI o el correo ya existen
+        if (verificarDniExistente(usuario.getDni()) || verificarCorreoExistente(usuario.getCorreo())) {
+            return false; // Si alguno existe, no registrar
+        }
+        // Registrar el usuario si no existe el DNI o el correo
         return repo.registrar(usuario);
+    }
+
+    public boolean verificarDniExistente(String dni) {
+        return repo.obtenerPorDni(dni) != null;
+    }
+
+    public boolean verificarCorreoExistente(String correo) {
+        return repo.obtenerPorCorreo(correo) != null;
     }
 
     public Usuario obtenerPorId(int idUsuario) {

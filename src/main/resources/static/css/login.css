@@ -1,37 +1,53 @@
+/* ==================== */
+/* ESTILOS GLOBALES */
+/* ==================== */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     display: flex;
+    height: 100%;
     background-color: #0075BE;
     padding: 0;
 }
 
+/* Contenedor principal */
 main.content {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
     flex: 1;
+    gap: 20px;
+    height: 90vh;
 }
 
+/* ==================== */
+/* ESTILOS DEL CARRUSEL */
+/* ==================== */
 .carousel-container {
     position: relative;
-    flex: 5.2;
-    height: 700px;
-    max-width: 100%;
+    flex: 1 1 50%;
+    width: 100%;
+    height: 900px;
+    overflow: hidden;
+    z-index: 1;
 }
 
 .carousel {
     position: relative;
     display: flex;
     width: 100%;
+    z-index: 1;
 }
 
+/* Items del carrusel */
 .carousel-item {
     position: absolute;
     opacity: 0;
     width: 100%;
     transition: opacity 1s ease-in-out, visibility 0s 1s;
     visibility: hidden;
+    z-index: -1;
 }
 
 .carousel-item.active {
@@ -42,15 +58,16 @@ main.content {
 
 .carousel-item img {
     width: 100%;
-    height: 700px;
-    object-fit: cover;  /* Ajustar las imágenes sin deformarlas */
+    height: 900px;
+    object-fit: cover;
 }
 
+/* Controles del carrusel */
 .carousel-buttons {
     position: absolute;
     bottom: 6%;
     left: 50%;
-    transform: translateX(-50%);  /* Centra los botones horizontalmente */
+    transform: translateX(-50%);
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -65,52 +82,85 @@ main.content {
     border-radius: 47%;
     cursor: pointer;
     transition: background-color 0.3s;
-    text-align: center;
-    justify-content: center;
 }
 
 .carousel-buttons button:hover {
-    background-color: rgba(0, 123, 255, 0.3);  /* Fondo azul más intenso al pasar el ratón */
+    background-color: rgba(0, 123, 255, 0.3);
 }
 
+/* ==================== */
+/* ESTILOS DE FORMULARIOS */
+/* ==================== */
+
 .form-wrapper {
-    flex: 4.8; /* 48% del ancho */
+    flex: 1 1 50%;
+    max-width: 600px;
+    min-width: 280px;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 700px;
-    max-width: 100%;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 100;
+    animation-delay: 0.3s; /* Retraso para que la página cargue primero */
+    animation: scaleIn 0.6s ease-out both;
 }
+
+/* Animación del formulario al cargar la página */
+@keyframes scaleIn {
+    0% {
+        transform: scale(0.94);
+        opacity: 0.2;
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 
 .container {
     position: relative;
-    width: 400px;
-    height: 500px;
+    width: 100%;
+    max-width: 400px;
     perspective: 1000px;
+    display: flex;
     justify-content: center;
     align-items: center;
+    height: 100%;
+    margin: 0 auto;
 }
 
+/* Contenedores de formularios */
 .form-container {
     position: absolute;
     width: 100%;
-    height: 100%;
     background: #0075be;
     border-radius: 10px;
     backface-visibility: hidden;
-    transition: transform 0.8s;
+    transition: transform 0.8s, z-index 0.8s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+    min-height: 400px;
+    color: white;
 }
 
-.login-container, .register-container {
-    color: white; /* Texto blanco */
-}
-
+/* Efecto de rotación para cambiar entre formularios */
 .login-container {
     transform: rotateY(0deg);
+    z-index: 2;
 }
 
 .register-container {
     transform: rotateY(180deg);
+    z-index: 1;
 }
 
 .container.rotate .login-container {
@@ -121,28 +171,33 @@ main.content {
     transform: rotateY(0deg);
 }
 
+/* ==================== */
+/* ELEMENTOS DE FORMULARIOS */
+/* ==================== */
 h1 {
     text-align: center;
     margin-bottom: 40px;
 }
 
-
+/* Campos de entrada */
 input {
-    width: 98%;
+    width: 100%;
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #ffffff;
     color: #000000;
-
+    box-sizing: border-box;
 }
 
 input:focus {
     border-color: #007bff;
     background-color: #ededed;
+    outline: none;
 }
 
+/* Campo de contraseña con botón para mostrar/ocultar */
 .password-label {
     position: relative;
     display: flex;
@@ -153,9 +208,8 @@ input:focus {
     border-radius: 5px;
     padding-right: 10px;
     height: 37px;
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    width: 97%;
+    margin: 10px 0;
 }
 
 .password-label input {
@@ -168,10 +222,6 @@ input:focus {
     font-size: 13px;
 }
 
-.password-label input:focus {
-    background-color: #ededed;
-}
-
 .password-label .show-btn {
     color: #000000;
     cursor: pointer;
@@ -179,10 +229,7 @@ input:focus {
     transition: color 0.3s;
 }
 
-.password-label .show-btn:hover {
-    color: #000000;
-}
-
+/* Botones */
 button {
     margin-top: 20px;
     width: 100%;
@@ -193,12 +240,15 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color 0.3s;
 }
 
 button:hover {
     background: #272727;
 }
 
+/* Enlaces para cambiar entre formularios */
 .switch-form {
     text-align: center;
     margin-top: 20px;
@@ -215,45 +265,130 @@ button:hover {
     text-decoration: underline;
 }
 
-
-@keyframes fadeIn {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
+/* ==================== */
+/* MENSAJES Y VALIDACIÓN */
+/* ==================== */
+/* Icono de validación para DNI */
+.input-icon {
+    position: relative;
+    display: inline-block;
+    width: 100%;
 }
 
-main.content, .carousel-container, .form-wrapper, .container {
-    animation: fadeIn 0.7s ease-out forwards;
-    opacity: 0;
+.validation-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 1.2em;
 }
 
-.carousel-container, .form-wrapper {
-    animation-delay: 0.5s;
-}
-.alert {
-    padding: 15px;
+/* Mensajes de error y éxito */
+.error-message,
+.success-message {
+    font-size: 16px;
+    font-weight: bold;
     margin-bottom: 20px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    color: #721c24;
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
+    padding: 10px;
+    border-radius: 5px;
+    display: block;
+    width: 100%;
     text-align: center;
-    opacity: 1;
-    transition: opacity 2s ease-out;
 }
 
-.alert-warning {
-    background-color: #fff3cd;
-    border-color: #ffeeba;
-    color: #856404;
+.error-message {
+    color: red;
+    background-color: #f8d7da;
+    border: 1px solid red;
 }
 
-.fade-out {
-    opacity: 0;
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 
+.error-message.hidden,
+.success-message.hidden {
+    display: none;
+}
 
+/* ==================== */
+/* DISEÑO RESPONSIVO */
+/* ==================== */
+@media (max-width: 1260px) {
+    main.content {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .carousel-container,
+    .form-wrapper {
+        width: 100%;
+        max-width: 100%;
+        flex: none;
+    }
+
+    .form-wrapper {
+        padding: 20px 10px;
+    }
+
+    .container {
+        max-width: 400px;
+        width: 100%;
+        margin: 0 auto;
+        height: auto;
+    }
+
+    .carousel-container {
+        height: 300px;
+    }
+
+    .carousel-item img {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-container,
+    .form-wrapper {
+        height: 220px;
+    }
+
+    .carousel-item img {
+        height: 220px;
+    }
+
+    .container {
+        max-width: 100%;
+        padding: 0 5px;
+        height: auto;
+    }
+
+    .form-container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1rem;
+        margin-bottom: 25px;
+    }
+
+    input,
+    button {
+        font-size: 0.95rem;
+        padding: 8px;
+    }
+
+    .carousel-buttons button {
+        font-size: 0.8rem;
+        padding: 6px 8px;
+    }
+
+    /* Ajuste para reCAPTCHA en móviles */
+    .g-recaptcha {
+        transform: scale(0.85);
+        transform-origin: 0 0;
+    }
+}

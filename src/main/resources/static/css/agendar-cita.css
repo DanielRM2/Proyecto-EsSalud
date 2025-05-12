@@ -1,0 +1,179 @@
+/* Animación fadeInUp */
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Elementos con animación de aparición */
+.bienvenida,
+.navegacion-principal,
+.barra-busqueda,
+.tarjeta-formulario,
+table,
+.mensaje,
+.error,
+.boton-cancelar,
+.boton-reprogramar {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Delays escalonados */
+.bienvenida {
+    animation-delay: 0.1s;
+}
+
+.navegacion-principal {
+    animation-delay: 0.3s;
+}
+
+.barra-busqueda {
+    animation-delay: 0.5s;
+}
+
+.tarjeta-formulario {
+    animation-delay: 0.7s;
+}
+
+table {
+    animation-delay: 0.9s;
+}
+
+.mensaje {
+    animation-delay: 1.1s;
+}
+
+.error {
+    animation-delay: 1.3s;
+}
+
+.boton-cancelar {
+    animation-delay: 1.5s;
+}
+
+.boton-reprogramar {
+    animation-delay: 1.7s;
+}
+
+/* Contenido principal */
+.contenido-principal {
+    padding: 20px;
+}
+
+/* Bienvenida */
+.bienvenida {
+    background-color: black;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Navegación principal */
+.navegacion-principal {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 23px;
+}
+
+.boton-opciones {
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.boton-opciones:hover {
+    background-color: #ffffff;
+    color: #007bff;
+    box-shadow: inset 0 0 0 2px #007bff;
+}
+
+.boton-opciones.activo {
+    background-color: #006db1;
+    color: #ffffff;
+}
+
+/* Barra de búsqueda */
+.barra-busqueda {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 5px;
+}
+
+.input-busqueda {
+    flex-grow: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+}
+
+.boton-buscar {
+    background-color: #343a40;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+}
+
+/* Tarjeta formulario */
+.tarjeta-formulario {
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+select:invalid {
+    color: #6c757d; /* Gris para texto de placeholder */
+}
+
+select:valid {
+    color: #000; /* Negro para opciones seleccionadas */
+}
+
+/* Tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+/* Mensajes */
+.mensaje {
+    color: green;
+}
+
+.error {
+    color: red;
+}
+
+/* Botones */
+.boton-cancelar {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+

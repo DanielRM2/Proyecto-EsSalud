@@ -1,78 +1,127 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.com">
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio de sesión y Registro</title>
+    <!-- Hojas de estilo -->
+    <!-- Iconos de Font Awesome -->
     <link rel='stylesheet' href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Favicon -->
     <link rel="icon" href="/images/icono.ico" type="image/x-icon">
-    <link rel="stylesheet" href="/css/login.css">}
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 
 <body>
 <main class="content">
+    <!-- SECCIÓN DEL CARRUSEL DE IMÁGENES -->
     <div class="carousel-container">
         <div class="carousel">
+            <!-- Cada item del carrusel tiene una imagen y botones de navegación -->
             <div class="carousel-item active">
                 <img src="/images/slider1.jpg" alt="slider 1">
                 <div class="carousel-buttons">
-                    <button onclick="showImage(0)">◉</button>
+                    <!-- Botones para navegar entre imágenes -->
+                    <button onclick="showImage(0)">◉</button> <!-- Activo -->
                     <button onclick="showImage(1)">○</button>
                     <button onclick="showImage(2)">○</button>
                 </div>
             </div>
+
             <div class="carousel-item">
                 <img src="/images/slider2.jpg" alt="slider 2">
                 <div class="carousel-buttons">
                     <button onclick="showImage(0)">○</button>
-                    <button onclick="showImage(1)">◉</button>
+                    <button onclick="showImage(1)">◉</button> <!-- Activo -->
                     <button onclick="showImage(2)">○</button>
                 </div>
             </div>
+
             <div class="carousel-item">
                 <img src="/images/slider3.jpg" alt="slider 3">
                 <div class="carousel-buttons">
                     <button onclick="showImage(0)">○</button>
                     <button onclick="showImage(1)">○</button>
-                    <button onclick="showImage(2)">◉</button>
+                    <button onclick="showImage(2)">◉</button> <!-- Activo -->
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- SECCIÓN DE FORMULARIOS -->
     <div class="form-wrapper">
         <div class="container">
-
-            <!-- Formulario de Inicio de Sesión -->
+            <!-- FORMULARIO DE INICIO DE SESIÓN -->
             <div class="form-container login-container">
+                <!-- Mensaje que aparece cuando el registro es exitoso -->
+                <div th:if="${registroExitoso}" class="success-message">
+                    <p>¡Cuenta creada con éxito! Ya puedes iniciar sesión.</p>
+                </div>
+
+                <!-- Mensaje de error al iniciar sesión -->
+                <div th:if="${error}" class="error-message" id="error-message">
+                    <p th:text="${error}"></p> <!-- Thymeleaf inserta el mensaje de error aquí -->
+                </div>
+
                 <h1>¡Bienvenidos!</h1>
+                <!-- Formulario de login que envía datos a /essalud/login -->
                 <form th:action="@{/essalud/login}" method="post">
                     <p>Correo electrónico:</p>
-                    <input type="email" name="correo" placeholder="Ingrese su correo..." required>
+                    <input type="email" id="correo-login" name="correo" placeholder="Ingrese su correo..." required>
                     <br>
                     <p>Contraseña:</p>
                     <label class="password-label">
                         <input type="password" name="contrasena" id="pass" placeholder="Ingresa la contraseña..." required>
+                        <!-- Botón para mostrar/ocultar contraseña -->
                         <span class="show-btn"><i class="fas fa-eye"></i></span>
                     </label>
                     <button type="submit">Iniciar sesión</button>
+                    <!-- Enlace para cambiar al formulario de registro -->
                     <p class="switch-form">¿No tienes cuenta? <a href="#" id="show-register">Regístrate ahora</a></p>
                 </form>
             </div>
 
-            <!-- Formulario de Registro -->
+            <!-- FORMULARIO DE REGISTRO -->
             <div class="form-container register-container">
                 <h1>Registro de cuenta</h1>
+
+                <!-- Mensaje de error para DNI duplicado -->
+                <div id="dni-error" class="error-message hidden">
+                    El DNI ya está registrado.
+                </div>
+
+                <!-- Mensaje de error para correo duplicado -->
+                <div id="correo-error" class="error-message hidden">
+                    El correo ya está registrado.
+                </div>
+
+                <!-- Formulario de registro que envía datos a /essalud/registrar -->
                 <form th:action="@{/essalud/registrar}" method="post" id="registerForm">
-                    <input type="text" name="nombre" placeholder="Nombres" required>
-                    <input type="text" name="apellido" placeholder="Apellidos" required>
-                    <input type="text" name="dni" placeholder="DNI" pattern="[0-9]{8}" title="Debe tener 8 dígitos" required>
-                    <input type="email" name="correo" placeholder="Correo electrónico" required>
+                    <!-- Campo DNI con validación -->
+                    <div class="input-icon">
+                        <input type="text" id="dni" name="dni" placeholder="DNI" pattern="[0-9]{8}"
+                               title="Debe tener 8 dígitos" required>
+                        <!-- Ícono que muestra si el DNI es válido -->
+                        <span id="dni-icon" class="validation-icon"></span>
+                    </div>
+
+                    <input type="text" id="nombre" name="nombre" placeholder="Nombres" required>
+                    <input type="text" id="apellido" name="apellido" placeholder="Apellidos" required>
+                    <input type="email" id="correo-register" name="correo" placeholder="Correo electrónico" required>
+
                     <label class="password-label">
                         <input type="password" name="contrasena" id="register-pass" placeholder="Contraseña" required>
+                        <!-- Botón para mostrar/ocultar contraseña -->
                         <span class="show-btn"><i class="fas fa-eye"></i></span>
                     </label>
-                    <button type="submit">Registrarse</button>
+
+                    <!-- reCAPTCHA para protección contra bots -->
+                    <div class="g-recaptcha" data-sitekey="6LdkODQrAAAAAE3-yhMUP3CCVSOKLjbdVBic6IVJ"></div>
+
+                    <button type="submit" id="register-button">Registrarse</button>
+                    <!-- Enlace para cambiar al formulario de login -->
                     <p class="switch-form">¿Ya tienes una cuenta? <a href="#" id="show-login">Inicia sesión aquí</a></p>
                 </form>
             </div>
@@ -80,45 +129,10 @@
     </div>
 </main>
 
+<!-- Scripts -->
 <script src="/js/funcionesLogin.js"></script>
-
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Inicio de sesión
-        const passField = document.getElementById("pass");
-        const showBtn = document.querySelector(".login-container .password-label .show-btn i");
-
-        showBtn.onclick = () => {
-            if (passField.type === "password") {
-                passField.type = "text";
-                showBtn.classList.remove("fa-eye");
-                showBtn.classList.add("fa-eye-slash");
-            } else {
-                passField.type = "password";
-                showBtn.classList.remove("fa-eye-slash");
-                showBtn.classList.add("fa-eye");
-            }
-        };
-
-        // Registro
-        const registerPassField = document.getElementById("register-pass");
-        const registerShowBtn = document.querySelector(".register-container .password-label .show-btn i");
-
-        registerShowBtn.onclick = () => {
-            if (registerPassField.type === "password") {
-                registerPassField.type = "text";
-                registerShowBtn.classList.remove("fa-eye");
-                registerShowBtn.classList.add("fa-eye-slash");
-            } else {
-                registerPassField.type = "password";
-                registerShowBtn.classList.remove("fa-eye-slash");
-                registerShowBtn.classList.add("fa-eye");
-            }
-        };
-    });
-</script>
+<!-- Script de Google reCAPTCHA -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 </body>
-
 </html>

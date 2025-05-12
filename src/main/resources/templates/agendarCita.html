@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.com">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Cita - EsSalud</title>
+
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/images/icono.ico" type="image/x-icon">
+
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="/css/general.css">
+    <link rel="stylesheet" href="/css/agendar-cita.css">
+</head>
+<body>
+
+<!-- Contenedor Principal -->
+<div class="container-fluid">
+    <div class="row p-2">
+        <!-- Barra lateral -->
+        <div class="col-md-3">
+            <div class="barra-lateral text-center">
+                <img src="/images/perfil-del-usuario.png" class="foto-perfil" alt="Perfil">
+                <h5><span th:text="${usuario.nombre + ' ' + usuario.apellido}"></span></h5>
+                <p><span th:text="${usuario.correo}"></span></p>
+
+                <br>
+
+                <button class="boton-menu activo" onclick="location.href='/essalud/index'">
+                    <i class="bi bi-calendar-check"></i> Citas
+                </button>
+                <button class="boton-menu" onclick="location.href='/essalud/cuenta'">
+                    <i class="bi bi-person"></i> Detalles de la cuenta
+                </button>
+                <button class="boton-menu" onclick="location.href='/essalud/logout'">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </button>
+
+                <div class="pie-barra">
+                    <img src="/images/logo.png" alt="EsSalud logo" class="logo-essalud">
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="col-md-9">
+            <div class="contenido-principal">
+
+                <!-- Mensaje de bienvenida -->
+                <div class="bienvenida">
+                    <h4>¡Agenda tu cita, <span th:text="${usuario.nombre}"></span>!</h4>
+                </div>
+
+                <!-- Navegación -->
+                <div class="navegacion-principal">
+                    <button class="boton-opciones" onclick="location.href='/essalud/index'">Mis citas</button>
+                    <button class="boton-opciones activo" onclick="location.href='/essalud/citas/agendar'">Agendar cita</button>
+                </div>
+
+                <!-- Tarjeta de formulario -->
+                <div class="tarjeta-formulario">
+                    <h3>Agendar nueva cita</h3>
+
+                    <!-- Formulario de selección de especialidad y centro médico -->
+                    <form id="formSeleccion" th:action="@{/essalud/citas/agendar}" method="get">
+                        <div class="mb-3">
+                            <label class="form-label">Especialidad</label>
+                            <select name="idEspecialidad" class="form-select" required>
+                                <option value="">Seleccione una especialidad</option>
+                                <option th:each="especialidad : ${especialidades}"
+                                        th:value="${especialidad.idEspecialidad}"
+                                        th:text="${especialidad.nombre}"
+                                        th:selected="${idEspecialidadSeleccionada == especialidad.idEspecialidad}"></option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Centro Médico</label>
+                            <select name="idCentroMedico" class="form-select" required>
+                                <option value="">Seleccione un centro médico</option>
+                                <option th:each="centro : ${centrosMedicos}"
+                                        th:value="${centro.idCentroMedico}"
+                                        th:text="${centro.nombre}"
+                                        th:selected="${idCentroMedicoSeleccionado == centro.idCentroMedico}"></option>
+                            </select>
+                        </div>
+                    </form>
+
+                    <!-- Formulario de agendado (aparece tras selección válida) -->
+                    <form id="formAgendar" th:action="@{/essalud/citas/agendar}" method="post" th:object="${nuevaCita}">
+                        <!-- Inputs ocultos para mantener selección previa -->
+                        <input type="hidden" name="idEspecialidad" th:value="${idEspecialidadSeleccionada}" />
+                        <input type="hidden" name="idCentroMedico" th:value="${idCentroMedicoSeleccionado}" />
+
+                        <!-- Selección de médico -->
+                        <div class="mb-3" th:if="${medicos != null}">
+                            <label class="form-label">Médico</label>
+                            <select name="idMedico" class="form-select" required>
+                                <option value="">Seleccione un médico</option>
+                                <option th:each="medico : ${medicos}"
+                                        th:value="${medico.idMedico}"
+                                        th:text="${medico.nombre + ' ' + medico.apellido}"></option>
+                            </select>
+                        </div>
+
+                        <!-- Fecha y hora (aparece solo si hay médicos) -->
+                        <div class="mb-3" id="bloqueFechaHora" style="display: none;">
+                            <label class="form-label">Fecha y Hora</label>
+                            <input type="text" id="fechaHoraVisible" class="form-control" required>
+                            <input type="hidden" id="fechaHora" name="fechaCita" th:field="*{fechaCita}">
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between">
+                            <a href="/essalud/index" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary" id="btnAgendar" disabled>Agendar Cita</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- /tarjeta-formulario -->
+
+            </div>
+            <!-- /contenido-principal -->
+        </div>
+        <!-- /col-md-9 -->
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function inicializarFlatpickr() {
+        flatpickr("#fechaHoraVisible", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true,
+            minTime: "08:00",
+            maxTime: "18:00",
+            minuteIncrement: 15,
+            minDate: "today",
+            locale: "es",
+            disable: [
+                function(date) {
+                    return date.getDay() === 0; // domingo
+                }
+            ],
+            onChange: function(selectedDates) {
+                if (selectedDates.length > 0) {
+                    const fechaConT = selectedDates[0].toISOString().slice(0, 16);
+                    document.getElementById('fechaHora').value = fechaConT;
+                    validarCamposFormulario(); // volver a validar
+                }
+            }
+        });
+    }
+
+    function validarCamposFormulario() {
+        const formulario = document.getElementById('formAgendar');
+        if (!formulario) return;
+
+        const camposRequeridos = formulario.querySelectorAll('select[required], input[required]');
+        let todosLlenos = true;
+
+        camposRequeridos.forEach(campo => {
+            if (!campo.value || campo.value.trim() === '') {
+                todosLlenos = false;
+            }
+        });
+
+        const boton = document.getElementById('btnAgendar');
+        boton.disabled = !todosLlenos;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const formSeleccion = document.getElementById('formSeleccion');
+        const selects = formSeleccion.querySelectorAll('select');
+
+        selects.forEach(select => {
+            select.addEventListener('change', function () {
+                const idEspecialidad = formSeleccion.querySelector('[name="idEspecialidad"]').value;
+                const idCentroMedico = formSeleccion.querySelector('[name="idCentroMedico"]').value;
+
+                // Si se elimina una selección, limpiamos médicos y hora
+                if (!idEspecialidad || !idCentroMedico) {
+                    const formAgendar = document.getElementById('formAgendar');
+                    if (formAgendar) {
+                        // Limpiar médicos
+                        const medicoSelect = formAgendar.querySelector('select[name="idMedico"]');
+                        if (medicoSelect) {
+                            medicoSelect.innerHTML = '<option value="">Seleccione un médico</option>';
+                        }
+
+                        // Ocultar bloque de fecha/hora
+                        const bloqueFechaHora = formAgendar.querySelector('#bloqueFechaHora');
+                        if (bloqueFechaHora) {
+                            bloqueFechaHora.style.display = 'none';
+                        }
+
+                        // Limpiar campo de fecha
+                        const fechaHoraInput = formAgendar.querySelector('#fechaHoraVisible');
+                        if (fechaHoraInput) {
+                            fechaHoraInput.value = '';
+                        }
+                        const fechaHoraHidden = formAgendar.querySelector('#fechaHora');
+                        if (fechaHoraHidden) {
+                            fechaHoraHidden.value = '';
+                        }
+
+                        // Deshabilitar botón
+                        const btnAgendar = document.getElementById('btnAgendar');
+                        if (btnAgendar) {
+                            btnAgendar.disabled = true;
+                        }
+                    }
+                    return;
+                }
+
+                if (idEspecialidad && idCentroMedico) {
+                    const params = new URLSearchParams({ idEspecialidad, idCentroMedico });
+
+                    fetch(`/essalud/citas/agendar?${params}`)
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newForm = doc.getElementById('formAgendar');
+
+                            if (newForm) {
+                                const oldForm = document.getElementById('formAgendar');
+                                oldForm.parentNode.replaceChild(newForm, oldForm);
+
+                                inicializarFlatpickr();
+                                const nuevoFormulario = document.getElementById('formAgendar');
+                                nuevoFormulario.addEventListener('input', validarCamposFormulario);
+                                nuevoFormulario.addEventListener('submit', validarAntesDeEnviar);
+                                validarCamposFormulario();
+
+                                const medicoSelect = newForm.querySelector('select[name="idMedico"]');
+                                const bloqueFechaHora = newForm.querySelector('#bloqueFechaHora');
+
+                                if (medicoSelect && medicoSelect.options.length > 1) {
+                                    bloqueFechaHora.style.display = 'block';
+                                }
+                            }
+                        });
+                }
+            });
+        });
+
+        // Validación inicial si el formulario ya existe
+        const formularioInicial = document.getElementById('formAgendar');
+        if (formularioInicial) {
+            formularioInicial.addEventListener('input', validarCamposFormulario);
+            formularioInicial.addEventListener('submit', validarAntesDeEnviar);
+            validarCamposFormulario();
+        }
+    });
+
+    function validarAntesDeEnviar(event) {
+        const formulario = event.target;
+        const camposRequeridos = formulario.querySelectorAll('select[required], input[required]');
+        let todosLlenos = true;
+
+        camposRequeridos.forEach(campo => {
+            if (!campo.value || campo.value.trim() === '') {
+                todosLlenos = false;
+            }
+        });
+
+        if (!todosLlenos) {
+            event.preventDefault();
+        }
+    }
+</script>
+
+
+
+</body>
+</html>
