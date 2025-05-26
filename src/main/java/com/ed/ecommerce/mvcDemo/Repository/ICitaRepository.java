@@ -6,10 +6,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ICitaRepository {
+
     boolean agendarCita(Cita cita);
     List<Cita> listarCitasPorUsuario(int idUsuario);
     boolean cancelarCita(int idCita);
-    boolean reprogramarCita(int idCita, LocalDateTime nuevaFecha);
-    boolean existeCitaParaMedico(int idMedico, LocalDateTime fecha);
+    boolean reprogramarCita(int idCita, int nuevoIdHorario);
+    boolean existeCitaParaHorario(int idHorario);
+    Cita obtenerPorId(int idCita);
 
 }

@@ -1,43 +1,41 @@
 package com.ed.ecommerce.mvcDemo.Model;
 
-
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 public class Cita {
     private Integer idCita;
     private Integer idUsuario;
     private Integer idMedico;
     private Integer idCentroMedico;
+    private Integer idHorario;
     private LocalDateTime fechaCita;
     private String estado;
     private String nombreMedico;
     private String nombreCentro;
     private String nombreEspecialidad;
 
-    public static final List<String> ESTADOS_VALIDOS = List.of("Pendiente", "Confirmado", "Cancelado", "Completado","Reprogramado");
+    public static final List<String> ESTADOS_VALIDOS = List.of("Pendiente", "Confirmado", "Cancelado", "Completado", "Reprogramado");
 
     public Cita() {}
 
     public Cita(Integer idCita, Integer idUsuario, Integer idMedico, Integer idCentroMedico,
-                LocalDateTime fechaCita, String estado, String nombreMedico,
-                String nombreCentro, String nombreEspecialidad) {
+                Integer idHorario, LocalDateTime fechaCita, String estado,
+                String nombreMedico, String nombreCentro, String nombreEspecialidad) {
         this.idCita = idCita;
         this.idUsuario = idUsuario;
         this.idMedico = idMedico;
         this.idCentroMedico = idCentroMedico;
+        this.idHorario = idHorario;
         this.setFechaCita(fechaCita);
         this.setEstado(estado);
         this.nombreMedico = nombreMedico;
         this.nombreCentro = nombreCentro;
         this.nombreEspecialidad = nombreEspecialidad;
-
     }
 
-
     // Getters y Setters
+
     public Integer getIdCita() { return idCita; }
     public void setIdCita(Integer idCita) { this.idCita = idCita; }
 
@@ -50,14 +48,11 @@ public class Cita {
     public Integer getIdCentroMedico() { return idCentroMedico; }
     public void setIdCentroMedico(Integer idCentroMedico) { this.idCentroMedico = idCentroMedico; }
 
-    //  Ya no valida si es pasada (eso lo controla ServiceCita)
-    public LocalDateTime getFechaCita() {
-        return fechaCita;
-    }
+    public Integer getIdHorario() { return idHorario; }
+    public void setIdHorario(Integer idHorario) { this.idHorario = idHorario; }
 
-    public void setFechaCita(LocalDateTime fechaCita) {
-        this.fechaCita = fechaCita;
-    }
+    public LocalDateTime getFechaCita() { return fechaCita; }
+    public void setFechaCita(LocalDateTime fechaCita) { this.fechaCita = fechaCita; }
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) {
@@ -80,8 +75,4 @@ public class Cita {
     public String toString() {
         return "Cita [id=" + idCita + ", fecha=" + fechaCita + ", médico=" + nombreMedico + ", estado=" + estado + "]";
     }
-
 }
-
-
-

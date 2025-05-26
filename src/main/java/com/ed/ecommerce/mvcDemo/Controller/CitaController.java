@@ -1,7 +1,6 @@
 package com.ed.ecommerce.mvcDemo.Controller;
 
-import com.ed.ecommerce.mvcDemo.Model.Cita;
-import com.ed.ecommerce.mvcDemo.Model.Usuario;
+import com.ed.ecommerce.mvcDemo.Model.*;
 import com.ed.ecommerce.mvcDemo.Services.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Controller
@@ -25,6 +27,8 @@ public class CitaController {
     private ServiceEspecialidad serviceEspecialidad;
     @Autowired
     private ServiceCentroMedico serviceCentroMedico;
+    @Autowired
+    private ServiceHorarioDisponible serviceHorarioDisponible;
 
     // Mostrar el index
     @GetMapping("/index")
@@ -65,47 +69,103 @@ public class CitaController {
 
     // Mostrar formulario para agendar cita
     @GetMapping("/citas/agendar")
-    public String mostrarFormularioCita(HttpSession session,
-                                        Model model,
+    public String mostrarFormularioCita(@RequestParam(required = false) Integer idCentroMedico,
                                         @RequestParam(required = false) Integer idEspecialidad,
-                                        @RequestParam(required = false) Integer idCentroMedico) {
+                                        HttpSession session,
+                                        Model model) {
 
         Usuario usuario = validarSesion(session);
         if (usuario == null) return "redirect:/essalud/login";
 
-        cargarDatosFormulario(model, idEspecialidad, idCentroMedico);
+        List<CentroMedico> centros = serviceCentroMedico.listarTodos();
+        List<Especialidad> especialidades = serviceEspecialidad.listarTodas();
+
+        model.addAttribute("centros", centros);
+        model.addAttribute("especialidades", especialidades);
+
         return "agendarCita";
     }
 
+    // Procesar formulario y mostrar horarios disponibles
+    @PostMapping("/citas/agendar/listarHorarios")
+    public String listarHorarios(
+                                 @RequestParam("idCentroMedico") int idCentroMedico,
+                                 @RequestParam("idEspecialidad") int idEspecialidad,
+                                 Model model) {
+
+        // Obtener listas para selects y horarios
+        List<CentroMedico> centros = serviceCentroMedico.listarTodos();
+        List<Especialidad> especialidades = serviceEspecialidad.listarTodas();
+        List<HorarioDisponible> horarios = serviceHorarioDisponible.listarPorCentroMedicoYEspecialidad(idCentroMedico, idEspecialidad);
+
+        model.addAttribute("centros", centros);
+        model.addAttribute("especialidades", especialidades);
+        model.addAttribute("horarios", horarios);
+
+        // Mantener selección en los selects
+        model.addAttribute("selectedCentro", idCentroMedico);
+        model.addAttribute("selectedEspecialidad", idEspecialidad);
+
+        return "agendarCita";
+    }
+
+
+
     // Procesar agendamiento
     @PostMapping("/citas/agendar")
-    public String procesarAgendarCita(@ModelAttribute("nuevaCita") Cita cita,
-                                      @RequestParam Integer idMedico,
-                                      @RequestParam Integer idCentroMedico,
-                                      HttpSession session,
+    public String procesarAgendarCita(HttpSession session,
+                                      @RequestParam("idHorario") Integer idHorario,
                                       RedirectAttributes redirectAttributes) {
-
         Usuario usuario = validarSesion(session);
-        if (usuario == null) return "redirect:/essalud/login";
+        if (usuario == null) {
+            return "redirect:/essalud/login";
+        }
 
         try {
-            prepararCita(cita, usuario, idMedico, idCentroMedico);
-            boolean exito = serviceCita.agendarCita(cita);
+            HorarioDisponible horario = serviceHorarioDisponible.obtenerPorId(idHorario);
+            if (horario == null) {
+                redirectAttributes.addFlashAttribute("error", "Horario no encontrado.");
+                return "redirect:/essalud/citas/agendar";
+            }
 
-            manejarResultado(redirectAttributes, exito,
-                    "Cita agendada correctamente",
-                    "No se pudo agendar la cita");
+            // Obtener el médico
+            Medico medico = serviceMedico.obtenerPorId(horario.getIdMedico());
+            if (medico == null) {
+                redirectAttributes.addFlashAttribute("error", "Médico no encontrado.");
+                return "redirect:/essalud/citas/agendar";
+            }
+
+            // Obtener el centro médico desde el médico
+            Integer idCentroMedico = medico.getIdCentroMedico();
+
+            Cita nuevaCita = new Cita();
+            nuevaCita.setIdUsuario(usuario.getIdUsuario());
+            nuevaCita.setIdMedico(medico.getIdMedico());
+            nuevaCita.setIdCentroMedico(idCentroMedico);
+            nuevaCita.setIdHorario(horario.getIdHorario());
+            nuevaCita.setEstado("Pendiente");
+            nuevaCita.setFechaCita(LocalDateTime.of(horario.getFecha(), horario.getHora()));
+
+            boolean exito = serviceCita.agendarCita(nuevaCita);
+
+            if (exito) {
+                serviceHorarioDisponible.actualizarDisponibilidad(idHorario, false);
+                redirectAttributes.addFlashAttribute("mensaje", "Cita agendada correctamente.");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "No se pudo agendar la cita.");
+            }
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
-            return "redirect:/essalud/citas/agendar";
         }
 
         return "redirect:/essalud/index";
     }
 
 
-    // Cancelar cita
+
+
+
     @PostMapping("/citas/cancelar/{id}")
     public String cancelarCita(@PathVariable int id,
                                HttpSession session,
@@ -115,24 +175,38 @@ public class CitaController {
         if (usuario == null) return "redirect:/essalud/login";
 
         try {
+            // Obtener la cita antes de cancelarla
+            Cita cita = serviceCita.obtenerPorId(id);
+
+            if (cita == null) {
+                redirectAttributes.addFlashAttribute("error", "Cita no encontrada.");
+                return "redirect:/essalud/index";
+            }
+
             boolean exito = serviceCita.cancelarCita(id);
-            manejarResultado(redirectAttributes, exito,
-                    "Cita cancelada correctamente",
-                    "No se pudo cancelar la cita");
+
+            if (exito) {
+                // Cambiar disponibilidad del horario a true
+                serviceHorarioDisponible.actualizarDisponibilidad(cita.getIdHorario(), true);
+                redirectAttributes.addFlashAttribute("mensaje", "Cita cancelada correctamente.");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "No se pudo cancelar la cita.");
+            }
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
         }
 
         return "redirect:/essalud/index";
     }
+
+
     @PostMapping("/citas/reprogramar/{id}")
     public String reprogramarCita(@PathVariable int id,
-                                  @RequestParam("nuevaFecha") String nuevaFechaStr,
+                                  @RequestParam("nuevoIdHorario") Integer nuevoIdHorario,
                                   RedirectAttributes redirectAttributes) {
         try {
-            LocalDateTime nuevaFecha = LocalDateTime.parse(nuevaFechaStr);
-            boolean reprogramado = serviceCita.reprogramarCita(id, nuevaFecha);
-
+            boolean reprogramado = serviceCita.reprogramarCita(id, nuevoIdHorario);
             redirectAttributes.addFlashAttribute(
                     reprogramado ? "mensaje" : "error",
                     reprogramado ? "Cita reprogramada correctamente." : "No se pudo reprogramar la cita."
@@ -149,24 +223,6 @@ public class CitaController {
         return (Usuario) session.getAttribute("usuario");
     }
 
-    private void cargarDatosFormulario(Model model, Integer idEspecialidad, Integer idCentroMedico) {
-        model.addAttribute("especialidades", serviceEspecialidad.listarTodas());
-        model.addAttribute("centrosMedicos", serviceCentroMedico.listarTodos());
-        model.addAttribute("nuevaCita", new Cita());
-
-        if (idEspecialidad != null && idCentroMedico != null) {
-            model.addAttribute("medicos", serviceMedico.listarPorEspecialidadYCentro(idEspecialidad, idCentroMedico));
-            model.addAttribute("idEspecialidadSeleccionada", idEspecialidad);
-            model.addAttribute("idCentroMedicoSeleccionado", idCentroMedico);
-        }
-    }
-
-    private void prepararCita(Cita cita, Usuario usuario, Integer idMedico, Integer idCentroMedico) {
-        cita.setIdUsuario(usuario.getIdUsuario());
-        cita.setIdMedico(idMedico);
-        cita.setIdCentroMedico(idCentroMedico);
-        cita.setEstado("Pendiente");
-    }
 
     private void manejarResultado(RedirectAttributes redirectAttributes,
                                   boolean exito,

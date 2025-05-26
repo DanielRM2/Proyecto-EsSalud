@@ -15,9 +15,9 @@ public class ConexionBD {
         HikariConfig config = new HikariConfig();
 
         // Configuración de conexión a la base de datos CleverCloud (MySQL)
-        config.setJdbcUrl("jdbc:mysql://bgxlotxknk4uqmcs6k3n-mysql.services.clever-cloud.com:3306/bgxlotxknk4uqmcs6k3n?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Lima");
-        config.setUsername("ujixztyfzlrdyu3f");
-        config.setPassword("yzuUhxF50l9y3lcwYdQ0");
+        config.setJdbcUrl("jdbc:mysql://beukuvlrhrmlx8gqe7xo-mysql.services.clever-cloud.com:3306/beukuvlrhrmlx8gqe7xo?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Lima");
+        config.setUsername("us5cns1bqofgsggs");
+        config.setPassword("sdRA1urjC406Qc95V68g");
 
         // Parámetros
         config.setMaximumPoolSize(5);       // Máximo de 5 conexiones activas al mismo tiempo

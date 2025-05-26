@@ -38,6 +38,7 @@ public class IUsuarioImpl implements IUsuario {
                     usuario.setApellido(rs.getString("apellido"));
                     usuario.setDni(rs.getString("dni"));
                     usuario.setCorreo(rs.getString("correo"));
+                    usuario.setCorreo(rs.getString("correo"));
                     usuario.setContrasena(hashedPassword);  // guardamos el hash de la contraseña
                 }
             }

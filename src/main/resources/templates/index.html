@@ -13,6 +13,11 @@
     <link rel="icon" href="/images/icono.ico" type="image/x-icon">
     <link rel="stylesheet" href="/css/general.css">
     <link rel="stylesheet" href="/css/index.css">
+
+    <!-- Estilo del Chat IA -->
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/bot.css">
+
 </head>
 
 <body>
@@ -179,6 +184,12 @@
 <script src="/js/app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Para español -->
+
+
+<!-- Script que importa y ejecuta el chat -->
+<script type="module" src="/js/bot.js"></script>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const alertaMensaje = document.getElementById('alerta-mensaje');

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.com">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,10 +20,89 @@
     <!-- CSS Personalizado -->
     <link rel="stylesheet" href="/css/general.css">
     <link rel="stylesheet" href="/css/agendar-cita.css">
+
+    <!-- Estilo del Chat IA -->
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/bot.css">
+
+    <style>
+        .horario-item {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .horario-item:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+
+        .horario-item.selected {
+            border: 2px solid #0d6efd;
+            background-color: #f8f9fa;
+        }
+
+        .horario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .horario-disponible {
+            padding: 0.35rem 0.75rem;
+            border-radius: 50rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .disponible {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .no-disponible {
+            background-color: #f8d7da;
+            color: #842029;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .horario-body {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .horario-info {
+            flex: 1;
+        }
+
+        .doctor-name {
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .horario-date {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .action-container {
+            display: none;
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        .horario-item.selected .action-container {
+            display: block;
+        }
+    </style>
 </head>
 <body>
 
-<!-- Contenedor Principal -->
 <div class="container-fluid">
     <div class="row p-2">
         <!-- Barra lateral -->
@@ -70,220 +149,115 @@
                 <div class="tarjeta-formulario">
                     <h3>Agendar nueva cita</h3>
 
-                    <!-- Formulario de selección de especialidad y centro médico -->
-                    <form id="formSeleccion" th:action="@{/essalud/citas/agendar}" method="get">
+                    <form id="form-horarios" th:action="@{/essalud/citas/agendar/listarHorarios}" method="post" class="mb-5">
+                        <div class="mb-3">
+                            <label class="form-label">Centro Médico</label>
+                            <select name="idCentroMedico" id="idCentroMedico" class="form-select" required>
+                                <option value="" disabled
+                                        th:selected="${selectedCentro == null}">Seleccione un centro médico</option>
+                                <option th:each="centro : ${centros}"
+                                        th:value="${centro.idCentroMedico}"
+                                        th:text="${centro.nombre}"
+                                        th:selected="${centro.idCentroMedico} == ${selectedCentro}">
+                                </option>
+                            </select>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label">Especialidad</label>
-                            <select name="idEspecialidad" class="form-select" required>
-                                <option value="">Seleccione una especialidad</option>
+                            <select name="idEspecialidad" id="idEspecialidad" class="form-select" required>
+                                <option value="" disabled
+                                        th:selected="${selectedEspecialidad == null}">Seleccione una especialidad</option>
                                 <option th:each="especialidad : ${especialidades}"
                                         th:value="${especialidad.idEspecialidad}"
                                         th:text="${especialidad.nombre}"
-                                        th:selected="${idEspecialidadSeleccionada == especialidad.idEspecialidad}"></option>
+                                        th:selected="${especialidad.idEspecialidad} == ${selectedEspecialidad}">
+                                </option>
                             </select>
-                        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Centro Médico</label>
-                            <select name="idCentroMedico" class="form-select" required>
-                                <option value="">Seleccione un centro médico</option>
-                                <option th:each="centro : ${centrosMedicos}"
-                                        th:value="${centro.idCentroMedico}"
-                                        th:text="${centro.nombre}"
-                                        th:selected="${idCentroMedicoSeleccionado == centro.idCentroMedico}"></option>
-                            </select>
                         </div>
                     </form>
 
-                    <!-- Formulario de agendado (aparece tras selección válida) -->
-                    <form id="formAgendar" th:action="@{/essalud/citas/agendar}" method="post" th:object="${nuevaCita}">
-                        <!-- Inputs ocultos para mantener selección previa -->
-                        <input type="hidden" name="idEspecialidad" th:value="${idEspecialidadSeleccionada}" />
-                        <input type="hidden" name="idCentroMedico" th:value="${idCentroMedicoSeleccionado}" />
+                    <!-- Resultados de horarios -->
+                    <div th:if="${horarios != null}">
+                        <h4 class="mb-3">Horarios Disponibles</h4>
 
-                        <!-- Selección de médico -->
-                        <div class="mb-3" th:if="${medicos != null}">
-                            <label class="form-label">Médico</label>
-                            <select name="idMedico" class="form-select" required>
-                                <option value="">Seleccione un médico</option>
-                                <option th:each="medico : ${medicos}"
-                                        th:value="${medico.idMedico}"
-                                        th:text="${medico.nombre + ' ' + medico.apellido}"></option>
-                            </select>
+                        <div th:if="${horarios.isEmpty()}" class="alert alert-info">
+                            No hay horarios disponibles para la selección actual.
                         </div>
 
-                        <!-- Fecha y hora (aparece solo si hay médicos) -->
-                        <div class="mb-3" id="bloqueFechaHora" style="display: none;">
-                            <label class="form-label">Fecha y Hora</label>
-                            <input type="text" id="fechaHoraVisible" class="form-control" required>
-                            <input type="hidden" id="fechaHora" name="fechaCita" th:field="*{fechaCita}">
-                        </div>
+                        <div th:each="horario : ${horarios}"
+                             class="horario-item"
+                             th:classappend="${horario.disponible} ? '' : 'no-disponible'"
+                             onclick="selectHorario(this)">
+                            <div class="horario-header">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="text-muted">Médico:</span>
+                                    <span class="doctor-name" th:text="${horario.getNombreMedico()}"></span>
+                                </div>
+                                <span class="horario-disponible"
+                                      th:classappend="${horario.disponible} ? ' disponible' : ' no-disponible'"
+                                      th:text="${horario.disponible} ? 'Disponible' : 'Ocupado'"></span>
+                            </div>
 
-                        <!-- Botones -->
-                        <div class="d-flex justify-content-between">
-                            <a href="/essalud/index" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary" id="btnAgendar" disabled>Agendar Cita</button>
+                            <div class="horario-body">
+                                <div class="horario-info">
+                                    <div class="horario-date">
+                                        <strong>Fecha:</strong> <span th:text="${horario.fecha}"></span>
+                                    </div>
+                                    <div class="horario-date">
+                                        <strong>Hora:</strong> <span th:text="${horario.hora}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-container">
+                                <form th:if="${horario.disponible}" th:action="@{/essalud/citas/agendar}" method="post">
+                                    <input type="hidden" name="idHorario" th:value="${horario.idHorario}" />
+                                    <button type="submit" class="btn btn-primary">Agendar cita</button>
+                                </form>
+                            </div>
                         </div>
-                    </form>
+                    </div>
+                    <!-- Fin resultados -->
                 </div>
-                <!-- /tarjeta-formulario -->
-
             </div>
-            <!-- /contenido-principal -->
         </div>
-        <!-- /col-md-9 -->
     </div>
 </div>
 
+<!-- Script que importa y ejecuta el chat -->
+<script type="module" src="/js/bot.js"></script>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    function inicializarFlatpickr() {
-        flatpickr("#fechaHoraVisible", {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
-            time_24hr: true,
-            minTime: "08:00",
-            maxTime: "18:00",
-            minuteIncrement: 15,
-            minDate: "today",
-            locale: "es",
-            disable: [
-                function(date) {
-                    return date.getDay() === 0; // domingo
-                }
-            ],
-            onChange: function(selectedDates) {
-                if (selectedDates.length > 0) {
-                    const fechaConT = selectedDates[0].toISOString().slice(0, 16);
-                    document.getElementById('fechaHora').value = fechaConT;
-                    validarCamposFormulario(); // volver a validar
-                }
-            }
-        });
-    }
-
-    function validarCamposFormulario() {
-        const formulario = document.getElementById('formAgendar');
-        if (!formulario) return;
-
-        const camposRequeridos = formulario.querySelectorAll('select[required], input[required]');
-        let todosLlenos = true;
-
-        camposRequeridos.forEach(campo => {
-            if (!campo.value || campo.value.trim() === '') {
-                todosLlenos = false;
-            }
-        });
-
-        const boton = document.getElementById('btnAgendar');
-        boton.disabled = !todosLlenos;
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const formSeleccion = document.getElementById('formSeleccion');
-        const selects = formSeleccion.querySelectorAll('select');
-
-        selects.forEach(select => {
-            select.addEventListener('change', function () {
-                const idEspecialidad = formSeleccion.querySelector('[name="idEspecialidad"]').value;
-                const idCentroMedico = formSeleccion.querySelector('[name="idCentroMedico"]').value;
-
-                // Si se elimina una selección, limpiamos médicos y hora
-                if (!idEspecialidad || !idCentroMedico) {
-                    const formAgendar = document.getElementById('formAgendar');
-                    if (formAgendar) {
-                        // Limpiar médicos
-                        const medicoSelect = formAgendar.querySelector('select[name="idMedico"]');
-                        if (medicoSelect) {
-                            medicoSelect.innerHTML = '<option value="">Seleccione un médico</option>';
-                        }
-
-                        // Ocultar bloque de fecha/hora
-                        const bloqueFechaHora = formAgendar.querySelector('#bloqueFechaHora');
-                        if (bloqueFechaHora) {
-                            bloqueFechaHora.style.display = 'none';
-                        }
-
-                        // Limpiar campo de fecha
-                        const fechaHoraInput = formAgendar.querySelector('#fechaHoraVisible');
-                        if (fechaHoraInput) {
-                            fechaHoraInput.value = '';
-                        }
-                        const fechaHoraHidden = formAgendar.querySelector('#fechaHora');
-                        if (fechaHoraHidden) {
-                            fechaHoraHidden.value = '';
-                        }
-
-                        // Deshabilitar botón
-                        const btnAgendar = document.getElementById('btnAgendar');
-                        if (btnAgendar) {
-                            btnAgendar.disabled = true;
-                        }
-                    }
-                    return;
-                }
-
-                if (idEspecialidad && idCentroMedico) {
-                    const params = new URLSearchParams({ idEspecialidad, idCentroMedico });
-
-                    fetch(`/essalud/citas/agendar?${params}`)
-                        .then(response => response.text())
-                        .then(html => {
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-                            const newForm = doc.getElementById('formAgendar');
-
-                            if (newForm) {
-                                const oldForm = document.getElementById('formAgendar');
-                                oldForm.parentNode.replaceChild(newForm, oldForm);
-
-                                inicializarFlatpickr();
-                                const nuevoFormulario = document.getElementById('formAgendar');
-                                nuevoFormulario.addEventListener('input', validarCamposFormulario);
-                                nuevoFormulario.addEventListener('submit', validarAntesDeEnviar);
-                                validarCamposFormulario();
-
-                                const medicoSelect = newForm.querySelector('select[name="idMedico"]');
-                                const bloqueFechaHora = newForm.querySelector('#bloqueFechaHora');
-
-                                if (medicoSelect && medicoSelect.options.length > 1) {
-                                    bloqueFechaHora.style.display = 'block';
-                                }
-                            }
-                        });
-                }
+    function selectHorario(element) {
+        if (!element.classList.contains('no-disponible')) {
+            document.querySelectorAll('.horario-item').forEach(item => {
+                item.classList.remove('selected');
             });
-        });
-
-        // Validación inicial si el formulario ya existe
-        const formularioInicial = document.getElementById('formAgendar');
-        if (formularioInicial) {
-            formularioInicial.addEventListener('input', validarCamposFormulario);
-            formularioInicial.addEventListener('submit', validarAntesDeEnviar);
-            validarCamposFormulario();
-        }
-    });
-
-    function validarAntesDeEnviar(event) {
-        const formulario = event.target;
-        const camposRequeridos = formulario.querySelectorAll('select[required], input[required]');
-        let todosLlenos = true;
-
-        camposRequeridos.forEach(campo => {
-            if (!campo.value || campo.value.trim() === '') {
-                todosLlenos = false;
-            }
-        });
-
-        if (!todosLlenos) {
-            event.preventDefault();
+            element.classList.add('selected');
         }
     }
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const centroSelect = document.getElementById('idCentroMedico');
+        const especialidadSelect = document.getElementById('idEspecialidad');
+        const form = document.getElementById('form-horarios');
 
+        function autoSubmitForm() {
+            if (centroSelect.value && especialidadSelect.value) {
+                form.submit();
+            }
+        }
+
+        centroSelect.addEventListener('change', autoSubmitForm);
+        especialidadSelect.addEventListener('change', autoSubmitForm);
+    });
+</script>
 
 </body>
 </html>

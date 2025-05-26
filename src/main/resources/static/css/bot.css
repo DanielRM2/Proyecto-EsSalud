@@ -1,0 +1,52 @@
+/* Oculta el SVG original */
+.chat-window-toggle svg {
+    display: none !important;
+}
+
+/* Estilo base del botón de chat */
+.chat-window-toggle {
+    bottom: 20px !important;
+    right: 20px !important;
+
+    width: 90px !important;
+    height: 90px !important;
+
+    background-image: url('/static/images/chat-icon.png') !important;
+    background-size: 70% !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-color: #2d8cf0 !important;
+
+    border-radius: 50% !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    z-index: 9999;
+    cursor: pointer;
+}
+
+/* Efecto hover */
+.chat-window-toggle:hover {
+    transform: scale(1.14) !important;
+    transition: transform 0.6s ease !important;
+}
+
+/* Responsivo para tablets y pantallas medianas */
+@media (max-width: 768px) {
+    .chat-window-toggle {
+        width: 80px !important;
+        height: 80px !important;
+        bottom: 15px !important;
+        right: 5px !important;
+        background-size: 65% !important;
+    }
+}
+
+/* Responsivo para móviles pequeños */
+@media (max-width: 620px) {
+    .chat-window-toggle {
+        width: 70px !important;
+        height: 70px !important;
+        bottom: 10px !important;
+        right: 5px !important;
+        background-size: 60% !important;
+    }
+}

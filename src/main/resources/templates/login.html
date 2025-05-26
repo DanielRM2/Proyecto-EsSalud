@@ -112,7 +112,12 @@
                     <input type="email" id="correo-register" name="correo" placeholder="Correo electrónico" required>
 
                     <label class="password-label">
-                        <input type="password" name="contrasena" id="register-pass" placeholder="Contraseña" required>
+                        <input type="password"
+                               name="contrasena"
+                               id="register-pass"
+                               placeholder="Contraseña"
+                               pattern="^(?=.*[0-9])(?=.*[!_.@#$%^&*]).{5,}$"
+                               title="La contraseña debe tener al menos 5 caracteres, incluir al menos un número y un carácter especial (._!@#$%^&*)">
                         <!-- Botón para mostrar/ocultar contraseña -->
                         <span class="show-btn"><i class="fas fa-eye"></i></span>
                     </label>

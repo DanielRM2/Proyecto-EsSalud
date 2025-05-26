@@ -1,12 +1,13 @@
 package com.ed.ecommerce.mvcDemo.Model;
 
 public class Medico {
+
     private int idMedico;
     private String nombre;
     private String apellido;
     private int idEspecialidad;
     private int idCentroMedico;
-    private boolean estado; // Nuevo campo (true = activo, false = inactivo)
+    private boolean estado; //true = activo, false = inactivo)
     private String especialidad; // Para mostrar en vistas
     private String centroMedico; // Para mostrar en vistas
 

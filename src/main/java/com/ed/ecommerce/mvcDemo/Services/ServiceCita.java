@@ -5,7 +5,6 @@ import com.ed.ecommerce.mvcDemo.Repository.ICitaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,12 +17,12 @@ public class ServiceCita {
     }
 
     public boolean agendarCita(Cita cita) {
-        if (cita.getFechaCita().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("No se pueden agendar citas en fechas pasadas");
+        if (cita.getIdHorario() <= 0) {
+            throw new IllegalArgumentException("ID de horario no válido");
         }
 
-        if (citaRepository.existeCitaParaMedico(cita.getIdMedico(), cita.getFechaCita())) {
-            throw new IllegalStateException("El médico ya tiene una cita programada en ese horario");
+        if (citaRepository.existeCitaParaHorario(cita.getIdHorario())) {
+            throw new IllegalStateException("Ese horario ya está ocupado");
         }
 
         cita.setEstado("Pendiente");
@@ -44,13 +43,23 @@ public class ServiceCita {
         return citaRepository.cancelarCita(idCita);
     }
 
-    public boolean reprogramarCita(Integer idCita, LocalDateTime nuevaFecha) {
+    public boolean reprogramarCita(Integer idCita, Integer nuevoIdHorario) {
         if (idCita == null || idCita <= 0) {
             throw new IllegalArgumentException("ID de cita no válido");
         }
-        if (nuevaFecha == null || nuevaFecha.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("La nueva fecha no puede ser en el pasado");
+
+        if (nuevoIdHorario == null || nuevoIdHorario <= 0) {
+            throw new IllegalArgumentException("ID de nuevo horario no válido");
         }
-        return citaRepository.reprogramarCita(idCita, nuevaFecha);
+
+        if (citaRepository.existeCitaParaHorario(nuevoIdHorario)) {
+            throw new IllegalStateException("El nuevo horario ya está ocupado");
+        }
+
+        return citaRepository.reprogramarCita(idCita, nuevoIdHorario);
+    }
+
+    public Cita obtenerPorId(int idCita) {
+        return citaRepository.obtenerPorId(idCita);
     }
 }
