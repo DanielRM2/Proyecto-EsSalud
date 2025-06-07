@@ -1,148 +1,104 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.com">
+<!doctype html>
+<html lang=en xmlns:th=http://www.thymeleaf.org>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset=UTF-8>
+    <meta name=viewport content="width=device-width,initial-scale=1">
     <title>Dashboard - Mis Citas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="icon" href="/images/icono.ico" type="image/x-icon">
-    <link rel="stylesheet" href="/css/general.css">
-    <link rel="stylesheet" href="/css/cuenta.css">
-    <!-- Estilo del Chat IA -->
-    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
-    <link rel="stylesheet" href="/css/bot.css">
+    <link href=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css rel=stylesheet>
+    <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css>
+    <link rel=icon href=/images/icono.ico type=image/x-icon>
+    <link rel=stylesheet href=/css/general.css>
+    <link rel=stylesheet href=/css/cuenta.css>
+    <link href=https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css rel=stylesheet>
+    <link rel=stylesheet href=/css/bot.css>
 </head>
-
 <body>
-
-<div class="container-fluid">
+<div class=container-fluid>
     <div class="row p-2">
-
-        <!-- Barra lateral -->
-        <div class="col-md-3">
-            <div class="barra-lateral text-center" >
-                <img src="/images/perfil-del-usuario.png" class="foto-perfil" alt="Perfil">
+        <div class=col-md-3>
+            <div class="barra-lateral text-center">
+                <img src=/images/perfil-del-usuario.png class=foto-perfil alt=Perfil>
                 <h5><span th:text="${usuario.nombre + ' ' + usuario.apellido}"></span></h5>
-                <p><span th:text="${usuario.correo}"></span></p>
+                <p><span th:text=${usuario.correo}></span></p>
                 <br>
-
-                <button class="boton-menu" onclick="location.href='/essalud/index'">
+                <button class=boton-menu onclick='location.href="/essalud/index"'>
                     <i class="bi bi-calendar-check"></i> Citas
                 </button>
-                <button class="boton-menu activo" onclick="location.href='/essalud/cuenta'">
+                <button class="boton-menu activo" onclick='location.href="/essalud/cuenta"'>
                     <i class="bi bi-person"></i> Detalles de la cuenta
                 </button>
-                <button class="boton-menu" onclick="location.href='/essalud/logout'">
+                <button class=boton-menu onclick='location.href="/essalud/logout"'>
                     <i class="bi bi-box-arrow-right"></i> Salir
                 </button>
-
-                <div class="pie-barra">
-                    <img src="/images/logo.png" alt="EsSalud logo" class="logo-essalud">
+                <div class=pie-barra>
+                    <img src=/images/logo.png alt="EsSalud logo" class=logo-essalud>
                 </div>
             </div>
         </div>
-
-        <!-- Contenido principal -->
-        <div class="col-md-9">
-            <div class="contenido-principal">
-                <!-- Detalles de la cuenta -->
-
-                <div class="mensaje">
+        <div class=col-md-9>
+            <div class=contenido-principal>
+                <div class=mensaje>
                     <h4>Detalles de la cuenta</h4>
                 </div>
-
-                <div class="detalles-cuenta">
-                    <p><strong>Nombre:</strong> <span th:text="${usuario.nombre}"></span></p>
-                    <p><strong>Apellido:</strong> <span th:text="${usuario.apellido}"></span></p>
-                    <p><strong>Correo Electrónico:</strong> <span th:text="${usuario.correo}"></span></p>
-                    <p><strong>DNI:</strong> <span th:text="${usuario.dni}"></span></p>
+                <div class=detalles-cuenta>
+                    <p><strong>Nombre:</strong> <span th:text=${usuario.nombre}></span></p>
+                    <p><strong>Apellido:</strong> <span th:text=${usuario.apellido}></span></p>
+                    <p><strong>Correo Electrónico:</strong> <span th:text=${usuario.correo}></span></p>
+                    <p><strong>DNI:</strong> <span th:text=${usuario.dni}></span></p>
                 </div>
-
                 <br>
-
-                <!-- Botón para abrir el modal -->
-                <button class="btn btn-primary boton-actualizar" data-bs-toggle="modal" data-bs-target="#actualizarModal">
+                <button class="btn btn-primary boton-actualizar" data-bs-toggle=modal data-bs-target=#actualizarModal>
                     Actualizar datos
                 </button>
-
             </div>
-            <div id="alertaExito" class="alert alert-success alert-dismissible fade show d-none" role="alert">
+            <div id=alertaExito class="alert alert-success alert-dismissible fade show d-none" role=alert>
                 <strong>¡Éxito!</strong> Cambio realizado correctamente.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type=button class=btn-close data-bs-dismiss=alert aria-label=Close></button>
             </div>
         </div>
-
     </div>
 </div>
-
-
-<!-- Modal de actualización -->
-<div class="modal fade" id="actualizarModal" tabindex="-1" aria-labelledby="actualizarModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="actualizarModalLabel">Actualizar Datos de Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id=actualizarModal tabindex=-1 aria-labelledby=actualizarModalLabel aria-hidden=true>
+    <div class=modal-dialog>
+        <div class=modal-content>
+            <div class=modal-header>
+                <h5 class=modal-title id=actualizarModalLabel>Actualizar Datos de Usuario</h5>
+                <button type=button class=btn-close data-bs-dismiss=modal aria-label=Close></button>
             </div>
-            <div class="modal-body">
-                <!-- Formulario de actualización -->
-                <form th:action="@{/essalud/actualizar}" th:object="${usuario}" method="post" onsubmit="mostrarAlerta(); setTimeout(function(){window.location.reload();}, 100);">
-                    <input type="hidden" th:field="*{idUsuario}"/>
-
-                    <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+            <div class=modal-body>
+                <form th:action=@{/essalud/actualizar} th:object=${usuario} method=post onsubmit=mostrarAlerta(),setTimeout((function(){window.location.reload()}),100)>
+                    <input type=hidden th:field=*{idUsuario}>
+                    <div class=mb-3>
+                        <label for=nombre class=form-label>Nombre</label>
+                        <input class=form-control id=nombre th:field=*{nombre} required>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="apellido" class="form-label">Apellido</label>
-                        <input type="text" class="form-control" id="apellido" th:field="*{apellido}" required>
+                    <div class=mb-3>
+                        <label for=apellido class=form-label>Apellido</label>
+                        <input class=form-control id=apellido th:field=*{apellido} required>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="correo" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" id="correo" th:field="*{correo}" required>
+                    <div class=mb-3>
+                        <label for=correo class=form-label>Correo electrónico</label>
+                        <input type=email class=form-control id=correo th:field=*{correo} required>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="dni" class="form-label">DNI</label>
-                        <input type="text" class="form-control" id="dni" th:field="*{dni}" readonly>
+                    <div class=mb-3>
+                        <label for=dni class=form-label>DNI</label>
+                        <input class=form-control id=dni th:field=*{dni} readonly>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="contrasena" class="form-label">Nueva Contraseña</label>
-                        <input type="password" class="form-control" id="contrasena" th:field="*{contrasena}" required>
+                    <div class=mb-3>
+                        <label for=contrasena class=form-label>Nueva Contraseña</label>
+                        <input type=password class=form-control id=contrasena th:field=*{contrasena} required>
                     </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                    <div class=modal-footer>
+                        <button type=button class="btn btn-secondary" data-bs-dismiss=modal>Cancelar</button>
+                        <button type=submit class="btn btn-primary">Actualizar</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-<script>
-    function mostrarAlerta() {
-        // Guardamos una bandera temporal
-        localStorage.setItem("cambioRealizado", "true");
-    }
-
-    // Al cargar la página, mostramos la alerta si es necesario
-    window.onload = function () {
-        if (localStorage.getItem("cambioRealizado") === "true") {
-            const alerta = document.getElementById("alertaExito");
-            alerta.classList.remove("d-none");
-            localStorage.removeItem("cambioRealizado");
-        }
-    }
-</script>
-
-<!-- Script que importa y ejecuta el chat -->
-<script type="module" src="/js/bot.min.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>function mostrarAlerta(){localStorage.setItem("cambioRealizado","true")}window.onload=function(){if("true"===localStorage.getItem("cambioRealizado")){document.getElementById("alertaExito").classList.remove("d-none"),localStorage.removeItem("cambioRealizado")}}</script>
+<script type=module src=/js/bot.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js></script>
 </body>
 </html>

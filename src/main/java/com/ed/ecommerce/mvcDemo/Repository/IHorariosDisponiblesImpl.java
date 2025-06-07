@@ -1,6 +1,5 @@
 package com.ed.ecommerce.mvcDemo.Repository;
 
-import com.ed.ecommerce.mvcDemo.Model.Especialidad;
 import com.ed.ecommerce.mvcDemo.Model.HorarioDisponible;
 import com.ed.ecommerce.mvcDemo.Pattern.ConexionBD;
 import org.springframework.stereotype.Repository;
@@ -19,8 +18,9 @@ public class IHorariosDisponiblesImpl implements IHorariosDisponibles {
     public List<HorarioDisponible> listarPorCentroMedicoYEspecialidad(int idCentroMedico, int idEspecialidad) {
         List<HorarioDisponible> lista = new ArrayList<>();
 
+        // La consulta ya unía HorarioDisponible con Medico, ahora nos aseguramos de seleccionar m.idCentroMedico
         String sql = "SELECT h.idHorario, h.idMedico, h.fecha, h.hora, h.disponible, " +
-                "m.nombre, m.apellido " +
+                "m.nombre, m.apellido, m.idCentroMedico " + // <-- ¡CLAVE! Seleccionamos idCentroMedico del Medico
                 "FROM HorarioDisponible h " +
                 "INNER JOIN Medico m ON h.idMedico = m.idMedico " +
                 "WHERE m.idCentroMedico = ? AND m.idEspecialidad = ? AND h.disponible = 1 " +
@@ -37,11 +37,12 @@ public class IHorariosDisponiblesImpl implements IHorariosDisponibles {
                     HorarioDisponible horario = new HorarioDisponible();
                     horario.setIdHorario(rs.getInt("idHorario"));
                     horario.setIdMedico(rs.getInt("idMedico"));
+                    // Asignamos el idCentroMedico que obtuvimos de la tabla Medico
+                    horario.setIdCentroMedico(rs.getInt("idCentroMedico")); // <-- ¡CLAVE! Lo asignamos al objeto
                     horario.setFecha(rs.getDate("fecha").toLocalDate());
                     horario.setHora(rs.getTime("hora").toLocalTime());
                     horario.setDisponible(rs.getBoolean("disponible"));
 
-                    // Nombre completo del médico
                     horario.setNombreMedico(rs.getString("nombre") + " " + rs.getString("apellido"));
 
                     lista.add(horario);
@@ -57,10 +58,14 @@ public class IHorariosDisponiblesImpl implements IHorariosDisponibles {
     }
 
 
-
     @Override
     public HorarioDisponible obtenerPorId(int idHorario) {
-        String sql = "SELECT * FROM HorarioDisponible WHERE idHorario = ?";
+        // Para obtener un HorarioDisponible por ID, también necesitamos el idCentroMedico del Médico asociado.
+        String sql = "SELECT h.idHorario, h.idMedico, h.fecha, h.hora, h.disponible, " +
+                "m.idCentroMedico " + // <-- ¡CLAVE! Seleccionamos idCentroMedico de Medico
+                "FROM HorarioDisponible h " +
+                "INNER JOIN Medico m ON h.idMedico = m.idMedico " + // <-- Hacemos un JOIN con Medico
+                "WHERE h.idHorario = ?";
 
         try (Connection con = ConexionBD.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -69,9 +74,11 @@ public class IHorariosDisponiblesImpl implements IHorariosDisponibles {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
+                    // Usamos el constructor de 6 argumentos, obteniendo idCentroMedico del Medico
                     return new HorarioDisponible(
                             rs.getInt("idHorario"),
                             rs.getInt("idMedico"),
+                            rs.getInt("idCentroMedico"), // <-- ¡CLAVE! Pasamos idCentroMedico del Medico
                             rs.getDate("fecha").toLocalDate(),
                             rs.getTime("hora").toLocalTime(),
                             rs.getBoolean("disponible")

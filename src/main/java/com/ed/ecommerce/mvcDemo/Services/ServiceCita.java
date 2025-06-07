@@ -1,73 +1,125 @@
 package com.ed.ecommerce.mvcDemo.Services;
 
 import com.ed.ecommerce.mvcDemo.Model.Cita;
+import com.ed.ecommerce.mvcDemo.Model.HorarioDisponible;
+import com.ed.ecommerce.mvcDemo.Model.Medico;
+import com.ed.ecommerce.mvcDemo.Exceptions.RecursoNoEncontradoException; // Asegúrate de que esta clase exista
 import com.ed.ecommerce.mvcDemo.Repository.ICitaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class ServiceCita {
+
     private final ICitaRepository citaRepository;
+    private final ServiceHorarioDisponible serviceHorarioDisponible;
+    private final ServiceMedico serviceMedico;
 
     @Autowired
-    public ServiceCita(ICitaRepository citaRepository) {
+    public ServiceCita(ICitaRepository citaRepository,
+                       ServiceHorarioDisponible serviceHorarioDisponible,
+                       ServiceMedico serviceMedico) {
         this.citaRepository = citaRepository;
+        this.serviceHorarioDisponible = serviceHorarioDisponible;
+        this.serviceMedico = serviceMedico;
     }
 
     public boolean agendarCita(Cita cita) {
-        if (cita.getIdHorario() <= 0) {
-            throw new IllegalArgumentException("ID de horario no válido");
+        if (cita.getIdUsuario() == null || cita.getIdUsuario() <= 0) {
+            throw new IllegalArgumentException("ID de usuario no válido.");
+        }
+        if (cita.getIdHorario() == null || cita.getIdHorario() <= 0) {
+            throw new IllegalArgumentException("ID de horario no válido.");
         }
 
-        if (citaRepository.existeCitaParaHorario(cita.getIdHorario())) {
-            throw new IllegalStateException("Ese horario ya está ocupado");
+        // 1. Validar que el usuario no tenga citas pendientes o reprogramadas (NUEVA LÓGICA)
+        List<String> estadosActivos = Arrays.asList("Pendiente", "Reprogramado");
+        List<Cita> citasActivasUsuario = citaRepository.findCitasActivasPorUsuarioYEstados(cita.getIdUsuario(), estadosActivos);
+        if (!citasActivasUsuario.isEmpty()) {
+            throw new IllegalStateException("Usted ya tiene una cita pendiente .Por favor espere a que su cita sea aceptada o cancelada antes de agendar una nueva.");
         }
 
+        // 2. Obtener detalles del horario y médico
+        HorarioDisponible horario = serviceHorarioDisponible.obtenerPorId(cita.getIdHorario());
+        if (horario == null) {
+            throw new RecursoNoEncontradoException("Horario disponible no encontrado.");
+        }
+        if (!horario.isDisponible()) {
+            throw new IllegalStateException("El horario seleccionado ya no está disponible.");
+        }
+
+        Medico medico = serviceMedico.obtenerPorId(horario.getIdMedico());
+        if (medico == null) {
+            throw new RecursoNoEncontradoException("Médico asociado al horario no encontrado.");
+        }
+
+        // 3. Rellenar los campos de la cita que provienen de HorarioDisponible y Medico
+        cita.setIdMedico(medico.getIdMedico());
+        cita.setIdCentroMedico(medico.getIdCentroMedico()); // Asumiendo que Medico tiene idCentroMedico
         cita.setEstado("Pendiente");
-        return citaRepository.agendarCita(cita);
+        cita.setFechaCita(LocalDateTime.of(horario.getFecha(), horario.getHora()));
+
+        // 4. Agendar la cita en el repositorio
+        boolean agendado = citaRepository.agendarCita(cita);
+
+        // 5. Actualizar la disponibilidad del horario si la cita fue agendada con éxito
+        if (agendado) {
+            serviceHorarioDisponible.actualizarDisponibilidad(horario.getIdHorario(), false); // Marcar como no disponible
+        }
+        return agendado;
     }
 
     public List<Cita> obtenerCitasPorUsuario(Integer idUsuario) {
         if (idUsuario == null || idUsuario <= 0) {
-            throw new IllegalArgumentException("ID de usuario no válido");
+            throw new IllegalArgumentException("ID de usuario no válido.");
         }
         return citaRepository.listarCitasPorUsuario(idUsuario);
     }
 
     public boolean cancelarCita(Integer idCita) {
         if (idCita == null || idCita <= 0) {
-            throw new IllegalArgumentException("ID de cita no válido");
+            throw new IllegalArgumentException("ID de cita no válido.");
         }
+        // Nota: La lógica para liberar el horario se ha movido al CitaController para esta versión.
+        // Si quieres que ServiceCita lo maneje, debes obtener la cita aquí y luego llamar a serviceHorarioDisponible.
         return citaRepository.cancelarCita(idCita);
     }
 
     public boolean reprogramarCita(Integer idCita, Integer nuevoIdHorario) {
         if (idCita == null || idCita <= 0) {
-            throw new IllegalArgumentException("ID de cita no válido");
+            throw new IllegalArgumentException("ID de cita no válido.");
         }
-
         if (nuevoIdHorario == null || nuevoIdHorario <= 0) {
-            throw new IllegalArgumentException("ID de nuevo horario no válido");
+            throw new IllegalArgumentException("ID de nuevo horario no válido.");
         }
 
+        // Validar que el nuevo horario no esté ocupado por OTRA cita (no la que estamos reprogramando)
         if (citaRepository.existeCitaParaHorario(nuevoIdHorario)) {
-            throw new IllegalStateException("El nuevo horario ya está ocupado");
+            // Se podría añadir una validación más específica aquí para no marcar la misma cita si el ID de horario no cambió.
+            throw new IllegalStateException("El nuevo horario ya está ocupado por otra cita.");
         }
 
+        // Nota: La lógica para liberar el horario viejo y ocupar el nuevo NO está implementada aquí
+        // en esta versión simplificada del ServiceCita. Se asumiría que el controlador, o un
+        // método más completo, se encargaría de ello.
         return citaRepository.reprogramarCita(idCita, nuevoIdHorario);
     }
 
     public boolean haSidoReprogramada(Integer idCita) {
         if (idCita == null || idCita <= 0) {
-            throw new IllegalArgumentException("ID de cita no válido");
+            throw new IllegalArgumentException("ID de cita no válido.");
         }
         return citaRepository.haSidoReprogramada(idCita);
     }
 
-
     public Cita obtenerPorId(int idCita) {
+        if (idCita <= 0) {
+            throw new IllegalArgumentException("ID de cita no válido.");
+        }
         return citaRepository.obtenerPorId(idCita);
     }
 }

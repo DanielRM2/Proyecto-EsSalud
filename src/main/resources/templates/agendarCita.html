@@ -1,263 +1,112 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<!doctype html>
+<html xmlns:th=http://www.thymeleaf.org>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset=UTF-8>
+    <meta name=viewport content="width=device-width,initial-scale=1">
     <title>Agendar Cita - EsSalud</title>
-
-    <!-- Bootstrap & Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
-    <!-- Flatpickr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
-
-    <!-- Favicon -->
-    <link rel="icon" href="/images/icono.ico" type="image/x-icon">
-
-    <!-- CSS Personalizado -->
-    <link rel="stylesheet" href="/css/general.css">
-    <link rel="stylesheet" href="/css/agendar-cita.css">
-
-    <!-- Estilo del Chat IA -->
-    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
-    <link rel="stylesheet" href="/css/bot.css">
-
-    <style>
-        .horario-item {
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-            background-color: #fff;
-            cursor: pointer;
-        }
-
-        .horario-item:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-        }
-
-        .horario-item.selected {
-            border: 2px solid #0d6efd;
-            background-color: #f8f9fa;
-        }
-
-        .horario-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .horario-disponible {
-            padding: 0.35rem 0.75rem;
-            border-radius: 50rem;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-
-        .disponible {
-            background-color: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .no-disponible {
-            background-color: #f8d7da;
-            color: #842029;
-            pointer-events: none;
-            opacity: 0.7;
-        }
-
-        .horario-body {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .horario-info {
-            flex: 1;
-        }
-
-        .doctor-name {
-            font-weight: 600;
-            color: #212529;
-        }
-
-        .horario-date {
-            color: #6c757d;
-            font-size: 0.95rem;
-        }
-
-        .action-container {
-            display: none;
-            margin-top: 1rem;
-            text-align: right;
-        }
-
-        .horario-item.selected .action-container {
-            display: block;
-        }
-    </style>
+    <link href=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css rel=stylesheet>
+    <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css>
+    <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css>
+    <script src=https://cdn.jsdelivr.net/npm/flatpickr></script>
+    <script src=https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js></script>
+    <link rel=icon href=/images/icono.ico type=image/x-icon>
+    <link rel=stylesheet href=/css/general.css>
+    <link rel=stylesheet href=/css/agendar-cita.css>
+    <link href=https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css rel=stylesheet>
+    <link rel=stylesheet href=/css/bot.css>
+    <style>.horario-item{border:1px solid #dee2e6;border-radius:8px;padding:1.5rem;margin-bottom:1rem;transition:all .3s ease;background-color:#fff;cursor:pointer}.horario-item:hover{box-shadow:0 .5rem 1rem rgba(0,0,0,.1)}.horario-item.selected{border:2px solid #0d6efd;background-color:#f8f9fa}.horario-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}.horario-disponible{padding:.35rem .75rem;border-radius:50rem;font-weight:600;font-size:.875rem}.disponible{background-color:#d1e7dd;color:#0f5132}.no-disponible{background-color:#f8d7da;color:#842029;pointer-events:none;opacity:.7}.horario-body{display:flex;gap:2rem}.horario-info{flex:1}.doctor-name{font-weight:600;color:#212529}.horario-date{color:#6c757d;font-size:.95rem}.action-container{display:none;margin-top:1rem;text-align:right}.horario-item.selected .action-container{display:block}</style>
 </head>
 <body>
-
-<div class="container-fluid">
+<div class=container-fluid>
     <div class="row p-2">
-        <!-- Barra lateral -->
-        <div class="col-md-3">
+        <div class=col-md-3>
             <div class="barra-lateral text-center">
-                <img src="/images/perfil-del-usuario.png" class="foto-perfil" alt="Perfil">
+                <img src=/images/perfil-del-usuario.png class=foto-perfil alt=Perfil>
                 <h5><span th:text="${usuario.nombre + ' ' + usuario.apellido}"></span></h5>
-                <p><span th:text="${usuario.correo}"></span></p>
-
+                <p><span th:text=${usuario.correo}></span></p>
                 <br>
-
-                <button class="boton-menu activo" onclick="location.href='/essalud/index'">
+                <button class="boton-menu activo" onclick='location.href="/essalud/index"'>
                     <i class="bi bi-calendar-check"></i> Citas
                 </button>
-                <button class="boton-menu" onclick="location.href='/essalud/cuenta'">
+                <button class=boton-menu onclick='location.href="/essalud/cuenta"'>
                     <i class="bi bi-person"></i> Detalles de la cuenta
                 </button>
-                <button class="boton-menu" onclick="location.href='/essalud/logout'">
+                <button class=boton-menu onclick='location.href="/essalud/logout"'>
                     <i class="bi bi-box-arrow-right"></i> Salir
                 </button>
-
-                <div class="pie-barra">
-                    <img src="/images/logo.png" alt="EsSalud logo" class="logo-essalud">
+                <div class=pie-barra>
+                    <img src=/images/logo.png alt="EsSalud logo" class=logo-essalud>
                 </div>
             </div>
         </div>
-
-        <!-- Contenido principal -->
-        <div class="col-md-9">
-            <div class="contenido-principal">
-
-                <!-- Mensaje de bienvenida -->
-                <div class="bienvenida">
-                    <h4>¡Agenda tu cita, <span th:text="${usuario.nombre}"></span>!</h4>
+        <div class=col-md-9>
+            <div class=contenido-principal>
+                <div class=bienvenida>
+                    <h4>¡Agenda tu cita, <span th:text=${usuario.nombre}></span>!</h4>
                 </div>
-
-                <!-- Navegación -->
-                <div class="navegacion-principal">
-                    <button class="boton-opciones" onclick="location.href='/essalud/index'">Mis citas</button>
-                    <button class="boton-opciones activo" onclick="location.href='/essalud/citas/agendar'">Agendar cita</button>
+                <div class=navegacion-principal>
+                    <button class=boton-opciones onclick='location.href="/essalud/index"'>Mis citas</button>
+                    <button class="boton-opciones activo" onclick='location.href="/essalud/citas/agendar"'>Agendar cita</button>
                 </div>
-
-                <!-- Tarjeta de formulario -->
-                <div class="tarjeta-formulario">
+                <div class=tarjeta-formulario>
                     <h3>Agendar nueva cita</h3>
-
-                    <form id="form-horarios" th:action="@{/essalud/citas/agendar/listarHorarios}" method="post" class="mb-5">
-                        <div class="mb-3">
-                            <label class="form-label">Centro Médico</label>
-                            <select name="idCentroMedico" id="idCentroMedico" class="form-select" required>
-                                <option value="" disabled
-                                        th:selected="${selectedCentro == null}">Seleccione un centro médico</option>
-                                <option th:each="centro : ${centros}"
-                                        th:value="${centro.idCentroMedico}"
-                                        th:text="${centro.nombre}"
-                                        th:selected="${centro.idCentroMedico} == ${selectedCentro}">
+                    <form id=form-horarios th:action=@{/essalud/citas/agendar/listarHorarios} method=post class=mb-5>
+                        <div class=mb-3>
+                            <label class=form-label>Centro Médico</label>
+                            <select name=idCentroMedico id=idCentroMedico class=form-select required>
+                                <option value="" disabled th:selected="${selectedCentro == null}">Seleccione un centro médico</option>
+                                <option th:each="centro : ${centros}" th:value=${centro.idCentroMedico} th:text=${centro.nombre} th:selected="${centro.idCentroMedico} == ${selectedCentro}">
                                 </option>
                             </select>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Especialidad</label>
-                            <select name="idEspecialidad" id="idEspecialidad" class="form-select" required>
-                                <option value="" disabled
-                                        th:selected="${selectedEspecialidad == null}">Seleccione una especialidad</option>
-                                <option th:each="especialidad : ${especialidades}"
-                                        th:value="${especialidad.idEspecialidad}"
-                                        th:text="${especialidad.nombre}"
-                                        th:selected="${especialidad.idEspecialidad} == ${selectedEspecialidad}">
+                        <div class=mb-3>
+                            <label class=form-label>Especialidad</label>
+                            <select name=idEspecialidad id=idEspecialidad class=form-select required>
+                                <option value="" disabled th:selected="${selectedEspecialidad == null}">Seleccione una especialidad</option>
+                                <option th:each="especialidad : ${especialidades}" th:value=${especialidad.idEspecialidad} th:text=${especialidad.nombre} th:selected="${especialidad.idEspecialidad} == ${selectedEspecialidad}">
                                 </option>
                             </select>
-
                         </div>
                     </form>
-
-                    <!-- Resultados de horarios -->
                     <div th:if="${horarios != null}">
-                        <h4 class="mb-3">Horarios Disponibles</h4>
-
-                        <div th:if="${horarios.isEmpty()}" class="alert alert-info">
+                        <h4 class=mb-3>Horarios Disponibles</h4>
+                        <div th:if=${horarios.isEmpty()} class="alert alert-info">
                             No hay horarios disponibles para la selección actual.
                         </div>
-
-                        <div th:each="horario : ${horarios}"
-                             class="horario-item"
-                             th:classappend="${horario.disponible} ? '' : 'no-disponible'"
-                             onclick="selectHorario(this)">
-                            <div class="horario-header">
+                        <div th:each="horario : ${horarios}" class=horario-item th:classappend="${horario.disponible} ? '' : 'no-disponible'" onclick=selectHorario(this)>
+                            <div class=horario-header>
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="text-muted">Médico:</span>
-                                    <span class="doctor-name" th:text="${horario.getNombreMedico()}"></span>
+                                    <span class=text-muted>Médico:</span>
+                                    <span class=doctor-name th:text=${horario.getNombreMedico()}></span>
                                 </div>
-                                <span class="horario-disponible"
-                                      th:classappend="${horario.disponible} ? ' disponible' : ' no-disponible'"
-                                      th:text="${horario.disponible} ? 'Disponible' : 'Ocupado'"></span>
+                                <span class=horario-disponible th:classappend="${horario.disponible} ? ' disponible' : ' no-disponible'" th:text="${horario.disponible} ? 'Disponible' : 'Ocupado'"></span>
                             </div>
-
-                            <div class="horario-body">
-                                <div class="horario-info">
-                                    <div class="horario-date">
-                                        <strong>Fecha:</strong> <span th:text="${horario.fecha}"></span>
+                            <div class=horario-body>
+                                <div class=horario-info>
+                                    <div class=horario-date>
+                                        <strong>Fecha:</strong> <span th:text=${horario.fecha}></span>
                                     </div>
-                                    <div class="horario-date">
-                                        <strong>Hora:</strong> <span th:text="${horario.hora}"></span>
+                                    <div class=horario-date>
+                                        <strong>Hora:</strong> <span th:text=${horario.hora}></span>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="action-container">
-                                <form th:if="${horario.disponible}" th:action="@{/essalud/citas/agendar}" method="post">
-                                    <input type="hidden" name="idHorario" th:value="${horario.idHorario}" />
-                                    <button type="submit" class="btn btn-primary">Agendar cita</button>
+                            <div class=action-container>
+                                <form th:if=${horario.disponible} th:action=@{/essalud/citas/agendar} method=post>
+                                    <input type=hidden name=idHorario th:value=${horario.idHorario}>
+                                    <button type=submit class="btn btn-primary">Agendar cita</button>
                                 </form>
                             </div>
                         </div>
                     </div>
-                    <!-- Fin resultados -->
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Script que importa y ejecuta el chat -->
-<script type="module" src="/js/bot.min.js"></script>
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    function selectHorario(element) {
-        if (!element.classList.contains('no-disponible')) {
-            document.querySelectorAll('.horario-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            element.classList.add('selected');
-        }
-    }
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const centroSelect = document.getElementById('idCentroMedico');
-        const especialidadSelect = document.getElementById('idEspecialidad');
-        const form = document.getElementById('form-horarios');
-
-        function autoSubmitForm() {
-            if (centroSelect.value && especialidadSelect.value) {
-                form.submit();
-            }
-        }
-
-        centroSelect.addEventListener('change', autoSubmitForm);
-        especialidadSelect.addEventListener('change', autoSubmitForm);
-    });
-</script>
-
+<script type=module src=/js/bot.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js></script>
+<script>function selectHorario(e){e.classList.contains("no-disponible")||(document.querySelectorAll(".horario-item").forEach((e=>{e.classList.remove("selected")})),e.classList.add("selected"))}</script>
+<script>document.addEventListener("DOMContentLoaded",(function(){const e=document.getElementById("idCentroMedico"),n=document.getElementById("idEspecialidad"),t=document.getElementById("form-horarios");function d(){e.value&&n.value&&t.submit()}e.addEventListener("change",d),n.addEventListener("change",d)}))</script>
 </body>
 </html>

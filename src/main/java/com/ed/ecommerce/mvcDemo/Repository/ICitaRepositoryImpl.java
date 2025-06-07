@@ -8,6 +8,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner; // <-- ¡IMPORTACIÓN AÑADIDA/VERIFICADA!
 
 @Repository
 public class ICitaRepositoryImpl implements ICitaRepository {
@@ -38,6 +39,7 @@ public class ICitaRepositoryImpl implements ICitaRepository {
             }
         } catch (SQLException e) {
             System.err.println("Error al agendar cita: " + e.getMessage());
+            e.printStackTrace(); // Para depuración
         }
         return false;
     }
@@ -76,7 +78,7 @@ public class ICitaRepositoryImpl implements ICitaRepository {
                             .atTime(rs.getTime("hora").toLocalTime());
                     cita.setFechaCita(fechaCita);
 
-                    // Nuevos campos
+                    // Nuevos campos (asegúrate que tu clase Cita tenga estos setters)
                     cita.setNombreMedico(rs.getString("nombreCompletoMedico"));
                     cita.setNombreEspecialidad(rs.getString("nombreEspecialidad"));
                     cita.setNombreCentro(rs.getString("nombreCentroMedico"));
@@ -87,12 +89,10 @@ public class ICitaRepositoryImpl implements ICitaRepository {
 
         } catch (SQLException e) {
             System.err.println("Error al listar citas: " + e.getMessage());
+            e.printStackTrace(); // Para depuración
         }
         return citas;
     }
-
-
-
 
     @Override
     public boolean cancelarCita(int idCita) {
@@ -106,6 +106,7 @@ public class ICitaRepositoryImpl implements ICitaRepository {
 
         } catch (SQLException e) {
             System.err.println("Error al cancelar cita: " + e.getMessage());
+            e.printStackTrace(); // Para depuración
         }
         return false;
     }
@@ -123,9 +124,11 @@ public class ICitaRepositoryImpl implements ICitaRepository {
 
         } catch (SQLException e) {
             System.err.println("Error al reprogramar cita: " + e.getMessage());
+            e.printStackTrace(); // Para depuración
         }
         return false;
     }
+
     @Override
     public boolean haSidoReprogramada(int idCita) {
         String sql = "SELECT estado FROM Cita WHERE idCita = ?";
@@ -140,6 +143,7 @@ public class ICitaRepositoryImpl implements ICitaRepository {
             }
         } catch (SQLException e) {
             System.err.println("Error al verificar estado de cita: " + e.getMessage());
+            e.printStackTrace(); // Para depuración
         }
         return false;
     }
@@ -159,7 +163,8 @@ public class ICitaRepositoryImpl implements ICitaRepository {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error al verificar existencia de cita: " + e.getMessage());
+            System.err.println("Error al verificar existencia de cita para horario: " + e.getMessage());
+            e.printStackTrace(); // Para depuración
         }
         return false;
     }
@@ -181,13 +186,60 @@ public class ICitaRepositoryImpl implements ICitaRepository {
                 cita.setIdCentroMedico(rs.getInt("idCentroMedico"));
                 cita.setIdHorario(rs.getInt("idHorario"));
                 cita.setEstado(rs.getString("estado"));
-                cita.setFechaCita(rs.getTimestamp("fechaCita").toLocalDateTime());
+                Timestamp fechaCitaTimestamp = rs.getTimestamp("fechaCita");
+                if (fechaCitaTimestamp != null) {
+                    cita.setFechaCita(fechaCitaTimestamp.toLocalDateTime());
+                }
                 return cita;
             }
 
         } catch (SQLException e) {
-            e.printStackTrace(); // O usa logging
+            System.err.println("Error al obtener cita por ID: " + e.getMessage()); // Añadido System.err.println
+            e.printStackTrace(); // Para depuración
         }
         return null;
+    }
+
+    // <-- ¡MÉTODO AÑADIDO/VERIFICADO!
+    @Override
+    public List<Cita> findCitasActivasPorUsuarioYEstados(int idUsuario, List<String> estados) {
+        List<Cita> citas = new ArrayList<>();
+        // Construye dinámicamente la cláusula IN para los estados
+        StringJoiner sj = new StringJoiner(",", "(", ")");
+        for (int i = 0; i < estados.size(); i++) {
+            sj.add("?");
+        }
+        String sql = "SELECT * FROM Cita WHERE idUsuario = ? AND estado IN " + sj.toString();
+
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario);
+            for (int i = 0; i < estados.size(); i++) {
+                ps.setString(i + 2, estados.get(i)); // +2 porque el primer parámetro es idUsuario
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Cita cita = new Cita();
+                    cita.setIdCita(rs.getInt("idCita"));
+                    cita.setIdUsuario(rs.getInt("idUsuario"));
+                    cita.setIdMedico(rs.getInt("idMedico"));
+                    cita.setIdCentroMedico(rs.getInt("idCentroMedico"));
+                    cita.setIdHorario(rs.getInt("idHorario"));
+                    cita.setEstado(rs.getString("estado"));
+                    Timestamp fechaCitaTimestamp = rs.getTimestamp("fechaCita");
+                    if (fechaCitaTimestamp != null) {
+                        cita.setFechaCita(fechaCitaTimestamp.toLocalDateTime());
+                    }
+                    citas.add(cita);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al buscar citas activas por usuario y estados: " + e.getMessage());
+            e.printStackTrace(); // Para depuración
+        }
+        return citas;
     }
 }
