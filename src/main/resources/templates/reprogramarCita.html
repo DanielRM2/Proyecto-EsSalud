@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reprogramar Cita - EsSalud</title>
+
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/images/icono.ico" type="image/x-icon">
+
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="/css/general.css">
+    <link rel="stylesheet" href="/css/agendar-cita.css">
+
+    <style>
+        .current-appointment {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0d6efd;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        .current-appointment h5 {
+            color: #0d6efd;
+            margin-bottom: 1rem;
+        }
+
+        .reprogramacion-info {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .reprogramacion-info i {
+            color: #ffc107;
+            margin-right: 0.5rem;
+        }
+        .horario-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #fefefe;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .horario-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .horario-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .action-container {
+            margin-left: auto;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row p-2">
+        <!-- Barra lateral -->
+        <div class="col-md-3">
+            <div class="barra-lateral text-center">
+                <img src="/images/perfil-del-usuario.png" class="foto-perfil" alt="Perfil">
+                <h5><span th:text="${usuario.nombre + ' ' + usuario.apellido}"></span></h5>
+                <p><span th:text="${usuario.correo}"></span></p>
+
+                <br>
+
+                <button class="boton-menu" onclick="location.href='/essalud/index'">
+                    <i class="bi bi-calendar-check"></i> Citas
+                </button>
+                <button class="boton-menu" onclick="location.href='/essalud/cuenta'">
+                    <i class="bi bi-person"></i> Detalles de la cuenta
+                </button>
+                <button class="boton-menu" onclick="location.href='/essalud/logout'">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </button>
+
+                <div class="pie-barra">
+                    <img src="/images/logo.png" alt="EsSalud logo" class="logo-essalud">
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="col-md-9">
+            <div class="contenido-principal">
+
+                <!-- Mensaje de bienvenida -->
+                <div class="bienvenida">
+                    <h4>Reprogramar cita, <span th:text="${usuario.nombre}"></span></h4>
+                </div>
+
+                <!-- Navegación -->
+                <div class="navegacion-principal">
+                    <button class="boton-opciones" onclick="location.href='/essalud/index'">Mis citas</button>
+                    <button class="boton-opciones" onclick="location.href='/essalud/citas/agendar'">Agendar cita</button>
+                </div>
+
+                <!-- Tarjeta de formulario -->
+                <div class="tarjeta-formulario">
+                    <h3>Reprogramar cita</h3>
+
+                    <!-- Cita actual -->
+                    <div class="current-appointment">
+                        <h5>Tu cita actual</h5>
+                        <p><strong>Médico:</strong> <span th:text="${nombreMedico}"></span></p>
+                        <p><strong>Especialidad:</strong> <span th:text="${nombreEspecialidad}"></span></p>
+                        <p><strong>Fecha:</strong> <span th:text="${#temporals.format(cita.fechaCita, 'dd/MM/yyyy HH:mm')}"></span></p>
+                    </div>
+
+                    <!-- Información sobre reprogramación -->
+                    <div class="reprogramacion-info" th:if="${cita.estado == 'Reprogramado'}">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Esta cita ya ha sido reprogramada una vez.</strong>
+                        Si necesitas otro cambio, por favor cancela esta cita y agenda una nueva.
+                    </div>
+
+                    <!-- Horarios disponibles -->
+                    <div th:if="${horarios != null}">
+                        <h4 class="mb-3">Horarios Disponibles</h4>
+
+                        <div th:if="${horarios.isEmpty()}" class="alert alert-info">
+                            No hay horarios disponibles para reprogramación. Por favor, intenta más tarde o cancela esta cita para agendar una nueva.
+                        </div>
+
+                        <form th:unless="${cita.estado == 'Reprogramado'}"
+                              th:action="@{/essalud/citas/reprogramar/{id}(id=${cita.idCita})}"
+                              method="post">
+                            <div th:each="horario : ${horarios}" class="horario-item">
+
+                                <div class="horario-info">
+                                    <div>
+                                        <strong>Médico:</strong> <span th:text="${horario.nombreMedico}"></span>
+                                    </div>
+                                    <div>
+                                        <strong>Fecha:</strong> <span th:text="${#temporals.format(horario.fecha, 'dd/MM/yyyy')}"></span>
+                                    </div>
+                                    <div>
+                                        <strong>Hora:</strong> <span th:text="${#temporals.format(horario.hora, 'HH:mm')}"></span>
+                                    </div>
+                                </div>
+
+                                <div class="action-container">
+                                    <input type="hidden" name="nuevoIdHorario" th:value="${horario.idHorario}">
+                                    <button type="submit" class="btn btn-primary">Confirmar reprogramación</button>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Bootstrap JS -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function selectHorario(element, idHorario) {
+        // Solo permite seleccionar si no está deshabilitado
+        if (!element.classList.contains('no-disponible')) {
+            // Deseleccionar todos primero
+            document.querySelectorAll('.horario-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // Seleccionar el actual
+            element.classList.add('selected');
+
+            // Establecer el valor en el input oculto
+            document.querySelector('input[name="nuevoIdHorario"]').value = idHorario;
+        }
+    }
+</script>
+
+<script type="module" src="/js/bot.min.js"></script>
+
+</body>
+</html>

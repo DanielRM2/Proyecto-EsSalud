@@ -59,6 +59,14 @@ public class ServiceCita {
         return citaRepository.reprogramarCita(idCita, nuevoIdHorario);
     }
 
+    public boolean haSidoReprogramada(Integer idCita) {
+        if (idCita == null || idCita <= 0) {
+            throw new IllegalArgumentException("ID de cita no válido");
+        }
+        return citaRepository.haSidoReprogramada(idCita);
+    }
+
+
     public Cita obtenerPorId(int idCita) {
         return citaRepository.obtenerPorId(idCita);
     }

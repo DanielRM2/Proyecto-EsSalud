@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/essalud")
@@ -201,18 +202,75 @@ public class CitaController {
     }
 
 
+
+
+    @GetMapping("/citas/reprogramar/{id}")
+    public String mostrarFormularioReprogramacion(@PathVariable int id,
+                                                  HttpSession session,
+                                                  Model model) {
+        Usuario usuario = validarSesion(session);
+        if (usuario == null) return "redirect:/essalud/login";
+
+        Cita cita = serviceCita.obtenerPorId(id);
+        if (cita == null || !cita.getIdUsuario().equals(usuario.getIdUsuario())) {
+            return "redirect:/essalud/index";
+        }
+
+        // Obtener nombres completos
+        Medico medico = serviceMedico.obtenerPorId(cita.getIdMedico());
+        Especialidad especialidad = serviceEspecialidad.obtenerPorId(medico.getIdEspecialidad());
+
+        // Agregar nombres al objeto cita o al modelo
+        model.addAttribute("nombreMedico", medico.getNombreCompleto());
+        model.addAttribute("nombreEspecialidad", especialidad.getNombre());
+
+        if (cita.getEstado().equals("Reprogramado")) {
+            model.addAttribute("error", "Esta cita ya ha sido reprogramada una vez.");
+        }
+
+        List<HorarioDisponible> horarios = serviceHorarioDisponible.listarPorCentroMedicoYEspecialidad(
+                        cita.getIdCentroMedico(),
+                        medico.getIdEspecialidad()
+                ).stream()
+                .filter(h -> h.getIdHorario() != cita.getIdHorario())
+                .collect(Collectors.toList());
+
+        model.addAttribute("cita", cita);
+        model.addAttribute("horarios", horarios);
+        return "reprogramarCita";
+    }
+
     @PostMapping("/citas/reprogramar/{id}")
-    public String reprogramarCita(@PathVariable int id,
-                                  @RequestParam("nuevoIdHorario") Integer nuevoIdHorario,
-                                  RedirectAttributes redirectAttributes) {
+    public String procesarReprogramacion(@PathVariable int id,
+                                         @RequestParam("nuevoIdHorario") int nuevoIdHorario,
+                                         HttpSession session,
+                                         RedirectAttributes redirectAttributes) {
+        Usuario usuario = validarSesion(session);
+        if (usuario == null) return "redirect:/essalud/login";
+
         try {
-            boolean reprogramado = serviceCita.reprogramarCita(id, nuevoIdHorario);
-            redirectAttributes.addFlashAttribute(
-                    reprogramado ? "mensaje" : "error",
-                    reprogramado ? "Cita reprogramada correctamente." : "No se pudo reprogramar la cita."
-            );
+            // Obtener la cita actual antes de modificarla
+            Cita citaActual = serviceCita.obtenerPorId(id);
+            if (citaActual == null) {
+                redirectAttributes.addFlashAttribute("error", "Cita no encontrada.");
+                return "redirect:/essalud/index";
+            }
+
+            int idHorarioAnterior = citaActual.getIdHorario();
+
+            // Reprogramar la cita con el nuevo horario
+            serviceCita.reprogramarCita(id, nuevoIdHorario);
+
+            // Marcar el nuevo horario como no disponible
+            serviceHorarioDisponible.actualizarDisponibilidad(nuevoIdHorario, false);
+
+            // Marcar el horario anterior como disponible
+            serviceHorarioDisponible.actualizarDisponibilidad(idHorarioAnterior, true);
+
+            redirectAttributes.addFlashAttribute("mensaje", "Cita reprogramada exitosamente.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al reprogramar cita: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error al reprogramar: " + e.getMessage());
+            return "redirect:/essalud/citas/reprogramar/" + id;
         }
 
         return "redirect:/essalud/index";

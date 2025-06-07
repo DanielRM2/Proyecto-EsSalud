@@ -1,176 +1,131 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.com">
+<!doctype html>
+<html lang=en xmlns:th=http://www.thymeleaf.com>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset=UTF-8>
+    <meta name=viewport content="width=device-width,initial-scale=1">
     <title>Dashboard - Mis Citas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
-    <!-- Flatpickr CDN -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-    <link rel="icon" href="/images/icono.ico" type="image/x-icon">
-    <link rel="stylesheet" href="/css/general.css">
-    <link rel="stylesheet" href="/css/index.css">
-
-    <!-- Estilo del Chat IA -->
-    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
-    <link rel="stylesheet" href="/css/bot.css">
-
+    <link href=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css rel=stylesheet>
+    <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css>
+    <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css>
+    <link rel=icon href=/images/icono.ico type=image/x-icon>
+    <link rel=stylesheet href=/css/general.css>
+    <link rel=stylesheet href=/css/index.css>
+    <link href=https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css rel=stylesheet>
+    <link rel=stylesheet href=/css/bot.css>
 </head>
-
 <body>
-
-<div class="container-fluid">
+<div class=container-fluid>
     <div class="row p-2">
-
-        <!-- Barra lateral -->
-        <div class="col-md-3">
+        <div class=col-md-3>
             <div class="barra-lateral text-center">
-                <img src="/images/perfil-del-usuario.png" class="foto-perfil" alt="Perfil">
+                <img src=/images/perfil-del-usuario.png class=foto-perfil alt=Perfil>
                 <h5><span th:text="${usuario.nombre + ' ' + usuario.apellido}"></span></h5>
-                <p><span th:text="${usuario.correo}"></span></p>
+                <p><span th:text=${usuario.correo}></span></p>
                 <br>
-
-                <button class="boton-menu activo" onclick="location.href='/essalud/index'">
+                <button class="boton-menu activo" onclick='location.href="/essalud/index"'>
                     <i class="bi bi-calendar-check"></i> Citas
                 </button>
-                <button class="boton-menu" onclick="location.href='/essalud/cuenta'">
+                <button class=boton-menu onclick='location.href="/essalud/cuenta"'>
                     <i class="bi bi-person"></i> Detalles de la cuenta
                 </button>
-                <button class="boton-menu" onclick="location.href='/essalud/logout'">
+                <button class=boton-menu onclick='location.href="/essalud/logout"'>
                     <i class="bi bi-box-arrow-right"></i> Salir
                 </button>
-
-                <div class="pie-barra">
-                    <img src="/images/logo.png" alt="EsSalud logo" class="logo-essalud">
+                <div class=pie-barra>
+                    <img src=/images/logo.png alt="EsSalud logo" class=logo-essalud>
                 </div>
             </div>
         </div>
-
-
-        <!-- Contenido principal -->
-        <div class="col-md-9">
-            <div class="contenido-principal">
-
-                <!-- Bienvenida -->
-                <div class="bienvenida">
-                    <h4>¡Bienvenido de nuevo, <span th:text="${usuario.nombre}"></span>!</h4>
+        <div class=col-md-9>
+            <div class=contenido-principal>
+                <div class=bienvenida>
+                    <h4>¡Bienvenido de nuevo, <span th:text=${usuario.nombre}></span>!</h4>
                 </div>
-
-                <!-- Botones principales -->
-                <div class="navegacion-principal">
-                    <button class="boton-opciones activo" onclick="location.href='/essalud/index'">Mis citas</button>
-                    <button class="boton-opciones" onclick="location.href='/essalud/citas/agendar'">Agendar cita</button>
+                <div class=navegacion-principal>
+                    <button class="boton-opciones activo" onclick='location.href="/essalud/index"'>Mis citas</button>
+                    <button class=boton-opciones onclick='location.href="/essalud/citas/agendar"'>Agendar cita</button>
                 </div>
-
-                <!-- Barra de búsqueda -->
-                <div class="barra-busqueda">
-                    <input type="text" class="input-busqueda" id="inputBuscarCita" placeholder="Buscar por código...">
-                    <button class="boton-buscar" id="botonBuscar">🔍</button>
+                <div class=barra-busqueda>
+                    <input class=input-busqueda id=inputBuscarCita placeholder="Buscar por código...">
+                    <button class=boton-buscar id=botonBuscar>🔍</button>
                 </div>
-
-                <!-- Tarjeta de cita -->
-                <div class="titulo-miscitas">
+                <div class=titulo-miscitas>
                     <h1>Mis citas agendadas</h1>
                 </div>
-
-
-                <!-- Mensajes Flash -->
-                <div th:if="${mensaje}" class="alert alert-success fade show" id="alerta-mensaje" th:text="${mensaje}"></div>
-                <div th:if="${error}" class="alert alert-danger fade show" id="alerta-error" th:text="${error}"></div>
-
-                <!-- Lista de Citas -->
+                <div th:if=${mensaje} class="alert alert-success fade show" id=alerta-mensaje th:text=${mensaje}></div>
+                <div th:if=${error} class="alert alert-danger fade show" id=alerta-error th:text=${error}></div>
                 <div th:if="${citas != null and not #lists.isEmpty(citas)}">
-                    <div class="row" id="listaCitas">
-                        <div th:each="cita : ${citas}" class="col-md-6 mb-4" id="cita-#{cita.idCita}">
-                            <div class="card">
+                    <div class=row id=listaCitas>
+                        <div th:each="cita : ${citas}" class="col-md-6 mb-4" id=cita-#{cita.idCita}>
+                            <div class=card>
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5>Cita #<span th:text="${cita.idCita}"></span></h5>
-
-                                    <!-- Etiqueta de estado -->
-                                    <span th:switch="${cita.estado}">
-                                    <span th:case="'Pendiente'" class="badge bg-warning text-dark" th:text="${cita.estado}"></span>
-                                    <span th:case="'Reprogramado'" class="badge bg-info text-dark" th:text="${cita.estado}"></span>
-                                    <span th:case="'Cancelado'" class="badge bg-danger" th:text="${cita.estado}"></span>
-                                    <span th:case="'Completado'" class="badge bg-success" th:text="${cita.estado}"></span>
-                                    <span th:case="*" class="badge bg-secondary" th:text="${cita.estado}"></span>
-                                    </span>
+                                    <h5>Cita #<span th:text=${cita.idCita}></span></h5>
+                                    <span th:switch=${cita.estado}>
+<span th:case="'Pendiente'" class="badge bg-warning text-dark" th:text=${cita.estado}></span>
+<span th:case="'Reprogramado'" class="badge bg-info text-dark" th:text=${cita.estado}></span>
+<span th:case="'Cancelado'" class="badge bg-danger" th:text=${cita.estado}></span>
+<span th:case="'Completado'" class="badge bg-success" th:text=${cita.estado}></span>
+<span th:case=* class="badge bg-secondary" th:text=${cita.estado}></span>
+</span>
                                 </div>
-
-                                <div class="card-body">
-                                    <p><strong>ID Cita:</strong> <span th:text="${cita.idCita}"></span></p>
-                                    <p><strong>Médico:</strong> <span th:text="${cita.nombreMedico}"></span></p>
-                                    <p><strong>Especialidad:</strong> <span th:text="${cita.nombreEspecialidad}"></span></p>
-                                    <p><strong>Centro médico:</strong> <span th:text="${cita.nombreCentro}"></span></p>
+                                <div class=card-body>
+                                    <p><strong>ID Cita:</strong> <span th:text=${cita.idCita}></span></p>
+                                    <p><strong>Médico:</strong> <span th:text=${cita.nombreMedico}></span></p>
+                                    <p><strong>Especialidad:</strong> <span th:text=${cita.nombreEspecialidad}></span></p>
+                                    <p><strong>Centro médico:</strong> <span th:text=${cita.nombreCentro}></span></p>
                                     <p><strong>Fecha:</strong> <span th:text="${#temporals.format(cita.fechaCita, 'dd/MM/yyyy HH:mm')}"></span></p>
                                 </div>
-
-
-                                <div class="card-footer" th:if="${cita.estado == 'Pendiente' or cita.estado == 'Reprogramado'}">
+                                <div class=card-footer th:if="${cita.estado == 'Pendiente' or cita.estado == 'Reprogramado'}">
                                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-
-                                        <!-- Botón que abre el modal -->
-                                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" th:data-bs-target="'#modalReprogramar' + ${cita.idCita}">
+                                        <button type=button class="btn btn-warning" data-bs-toggle=modal th:data-bs-target="'#modalConfirmarReprogramar' + ${cita.idCita}">
                                             <i class="bi bi-clock-history me-1"></i> Reprogramar
                                         </button>
-
-                                        <!-- Formulario de cancelación -->
-                                        <form th:action="@{/essalud/citas/cancelar/{id}(id=${cita.idCita})}" method="post" id="formCancelarCita">
-                                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" th:data-bs-target="'#modalConfirmarCancelar' + ${cita.idCita}" data-cita-id="${cita.idCita}">
+                                        <div class="modal fade" th:id="'modalConfirmarReprogramar' + ${cita.idCita}" tabindex=-1 aria-labelledby=modalConfirmarReprogramarLabel aria-hidden=true>
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class=modal-content>
+                                                    <div class=modal-header>
+                                                        <h5 class=modal-title id=modalConfirmarReprogramarLabel>Confirmar reprogramación</h5>
+                                                        <button type=button class=btn-close data-bs-dismiss=modal aria-label=Cerrar></button>
+                                                    </div>
+                                                    <div class=modal-body>
+                                                        <p>¿Estás seguro de que deseas reprogramar esta cita?</p>
+                                                        <div class="alert alert-warning" th:if="${cita.estado == 'Reprogramado'}">
+                                                            <i class="bi bi-exclamation-triangle-fill"></i> Esta cita ya ha sido reprogramada una vez.
+                                                        </div>
+                                                    </div>
+                                                    <div class=modal-footer>
+                                                        <button type=button class="btn btn-secondary" data-bs-dismiss=modal>Cancelar</button>
+                                                        <a th:href="@{/essalud/citas/reprogramar/{id}(id=${cita.idCita})}" th:classappend="${cita.estado == 'Reprogramado'} ? 'disabled btn btn-warning' : 'btn btn-warning'" th:disabled="${cita.estado == 'Reprogramado'}">
+                                                            Continuar
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <form th:action="@{/essalud/citas/cancelar/{id}(id=${cita.idCita})}" method=post id=formCancelarCita>
+                                            <button type=button class="btn btn-danger" data-bs-toggle=modal th:data-bs-target="'#modalConfirmarCancelar' + ${cita.idCita}" data-cita-id=${cita.idCita}>
                                                 <i class="bi bi-x-circle me-1"></i> Cancelar
                                             </button>
                                         </form>
                                     </div>
                                 </div>
-
-                                <!-- Modal para reprogramar -->
-                                <div class="modal fade" th:id="'modalReprogramar' + ${cita.idCita}" tabindex="-1" aria-hidden="true">
+                                <div class="modal fade" th:id="'modalConfirmarCancelar' + ${cita.idCita}" tabindex=-1 aria-labelledby=modalConfirmarCancelarLabel aria-hidden=true>
                                     <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-
-                                            <form th:action="@{/essalud/citas/reprogramar/{id}(id=${cita.idCita})}" method="post">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Seleccionar nueva fecha</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                </div>
-                                                <div class="modal-body text-center">
-                                                    <input type="text" th:id="'fechaVisible-' + ${cita.idCita}" class="form-control fecha-reprogramar-visible" placeholder="yyyy-MM-dd HH:mm" required />
-                                                    <input type="hidden" th:name="'nuevaFecha'" th:id="'fechaOculta-' + ${cita.idCita}" class="fecha-reprogramar-oculta" />
-
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-success">
-                                                        <i class="bi bi-save me-1"></i> Guardar
-                                                    </button>
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                </div>
-                                            </form>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Modal de Confirmación de Cancelación -->
-                                <div class="modal fade" th:id="'modalConfirmarCancelar' + ${cita.idCita}" tabindex="-1" aria-labelledby="modalConfirmarCancelarLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="modalConfirmarCancelarLabel">Confirmar cancelación</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        <div class=modal-content>
+                                            <div class=modal-header>
+                                                <h5 class=modal-title id=modalConfirmarCancelarLabel>Confirmar cancelación</h5>
+                                                <button type=button class=btn-close data-bs-dismiss=modal aria-label=Cerrar></button>
                                             </div>
-                                            <div class="modal-body">
+                                            <div class=modal-body>
                                                 ¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer.
                                             </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                                <button type="button" class="btn btn-danger" th:id="'confirmarCancelarCita' + ${cita.idCita}">Sí, Cancelar</button>
+                                            <div class=modal-footer>
+                                                <button type=button class="btn btn-secondary" data-bs-dismiss=modal>Cancelar</button>
+                                                <button type=button class="btn btn-danger" th:id="'confirmarCancelarCita' + ${cita.idCita}">Sí, Cancelar</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -179,124 +134,10 @@
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> <!-- Para español -->
-
-
-<!-- Script que importa y ejecuta el chat -->
-<script type="module" src="/js/bot.js"></script>
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const alertaMensaje = document.getElementById('alerta-mensaje');
-        const alertaError = document.getElementById('alerta-error');
-
-        [alertaMensaje, alertaError].forEach(alerta => {
-            if (alerta) {
-                setTimeout(() => {
-                    alerta.classList.remove('show');
-                    alerta.classList.add('fade');
-                    setTimeout(() => {
-                        alerta.style.display = 'none';
-                    }, 500);
-                }, 5000);
-            }
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Seleccionar todos los botones de cancelación
-        const botonesCancelar = document.querySelectorAll('[data-bs-toggle="modal"][data-bs-target^="#modalConfirmarCancelar"]');
-        let citaId = null;
-
-        // Al hacer click en el botón de cancelar, se guarda el ID de la cita
-        botonesCancelar.forEach(function (boton) {
-            boton.addEventListener('click', function () {
-                citaId = this.getAttribute('data-cita-id');
-            });
-        });
-
-        // Al hacer click en "Sí, Cancelar" en el modal, se envía el formulario
-        document.addEventListener('click', function (event) {
-            if (event.target && event.target.id.startsWith('confirmarCancelarCita')) {
-                const citaId = event.target.id.replace('confirmarCancelarCita', ''); // Obtener el ID de la cita
-                if (citaId) {
-                    // Encontrar el formulario correspondiente
-                    const formularioCancelar = document.querySelector(`form[action*='${citaId}']`);
-                    if (formularioCancelar) {
-                        formularioCancelar.submit(); // Enviar el formulario
-                    }
-                }
-            }
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Obtener el campo de búsqueda y el botón de búsqueda
-        const inputBuscarCita = document.getElementById('inputBuscarCita');
-        const botonBuscar = document.getElementById('botonBuscar');
-        const listaCitas = document.getElementById('listaCitas');
-
-        // Función para filtrar las citas
-        function filtrarCitas() {
-            const filtro = inputBuscarCita.value.trim().toLowerCase(); // Obtenemos el valor de búsqueda
-
-            // Obtener todas las citas
-            const citas = listaCitas.getElementsByClassName('col-md-6');
-
-            // Iterar sobre las citas y ocultar las que no coincidan con el filtro
-            for (let cita of citas) {
-                const idCita = cita.querySelector('h5').innerText.replace('Cita #', '').trim();
-                if (idCita.toLowerCase().includes(filtro)) {
-                    cita.style.display = 'block'; // Mostrar la cita
-                } else {
-                    cita.style.display = 'none'; // Ocultar la cita
-                }
-            }
-        }
-
-        // Agregar evento al campo de búsqueda y al botón
-        inputBuscarCita.addEventListener('input', filtrarCitas);
-        botonBuscar.addEventListener('click', filtrarCitas);
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.fecha-reprogramar-visible').forEach(function (inputVisible) {
-            const citaId = inputVisible.id.split('fechaVisible-')[1];
-            const inputOculto = document.getElementById('fechaOculta-' + citaId);
-
-            flatpickr(inputVisible, {
-                enableTime: true,
-                dateFormat: "Y-m-d H:i", // Formato bonito para el usuario
-                time_24hr: true,
-                minTime: "08:00",
-                maxTime: "18:00",
-                minuteIncrement: 15,
-                minDate: "today",
-                locale: "es",
-                disable: [
-                    function(date) {
-                        return date.getDay() === 0; // domingo
-                    }
-                ],
-                onChange: function (selectedDates) {
-                    if (selectedDates.length > 0) {
-                        const isoFormat = selectedDates[0].toISOString().slice(0, 16); // yyyy-MM-ddTHH:mm
-                        inputOculto.value = isoFormat; // este será enviado al backend
-                    }
-                }
-            });
-        });
-    });
-</script>
+<script src=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js></script>
+<script type=module src=/js/bot.min.js></script>
+<script>document.addEventListener("DOMContentLoaded",(function(){[document.getElementById("alerta-mensaje"),document.getElementById("alerta-error")].forEach((e=>{e&&setTimeout((()=>{e.classList.remove("show"),e.classList.add("fade"),setTimeout((()=>{e.style.display="none"}),500)}),5e3)}))}))</script>
+<script>document.addEventListener("DOMContentLoaded",(function(){const t=document.querySelectorAll('[data-bs-toggle="modal"][data-bs-target^="#modalConfirmarCancelar"]');let e=null;t.forEach((function(t){t.addEventListener("click",(function(){e=this.getAttribute("data-cita-id")}))})),document.addEventListener("click",(function(t){if(t.target&&t.target.id.startsWith("confirmarCancelarCita")){const e=t.target.id.replace("confirmarCancelarCita","");if(e){const t=document.querySelector(`form[action*='${e}']`);t&&t.submit()}}}))}))</script>
+<script>document.addEventListener("DOMContentLoaded",(function(){const e=document.getElementById("inputBuscarCita"),t=document.getElementById("botonBuscar"),n=document.getElementById("listaCitas");function o(){const t=e.value.trim().toLowerCase(),o=n.getElementsByClassName("col-md-6");for(let e of o){e.querySelector("h5").innerText.replace("Cita #","").trim().toLowerCase().includes(t)?e.style.display="block":e.style.display="none"}}e.addEventListener("input",o),t.addEventListener("click",o)}))</script>
 </body>
 </html>

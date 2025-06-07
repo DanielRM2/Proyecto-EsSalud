@@ -1,4 +1,4 @@
-/* Oculta el SVG original */
+
 .chat-window-toggle svg {
     display: none !important;
 }
@@ -11,7 +11,7 @@
     width: 90px !important;
     height: 90px !important;
 
-    background-image: url('/static/images/chat-icon.png') !important;
+    background-image: url('/images/chat-icon.png') !important;
     background-size: 70% !important;
     background-position: center !important;
     background-repeat: no-repeat !important;

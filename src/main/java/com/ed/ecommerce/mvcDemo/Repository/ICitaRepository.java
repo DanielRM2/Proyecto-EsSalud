@@ -13,5 +13,6 @@ public interface ICitaRepository {
     boolean reprogramarCita(int idCita, int nuevoIdHorario);
     boolean existeCitaParaHorario(int idHorario);
     Cita obtenerPorId(int idCita);
+    boolean haSidoReprogramada(int idCita);
 
 }

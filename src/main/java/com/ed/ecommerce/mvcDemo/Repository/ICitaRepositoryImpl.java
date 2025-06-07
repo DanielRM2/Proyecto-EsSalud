@@ -126,6 +126,23 @@ public class ICitaRepositoryImpl implements ICitaRepository {
         }
         return false;
     }
+    @Override
+    public boolean haSidoReprogramada(int idCita) {
+        String sql = "SELECT estado FROM Cita WHERE idCita = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idCita);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("estado").equals("Reprogramado");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar estado de cita: " + e.getMessage());
+        }
+        return false;
+    }
 
     @Override
     public boolean existeCitaParaHorario(int idHorario) {
