@@ -49,19 +49,21 @@ function setupDniValidation() {
     const nombreInput = document.getElementById("nombre");
     const apellidoInput = document.getElementById("apellido");
     const dniIcon = document.getElementById("dni-icon");
+    const registerButton = document.getElementById("register-button");
 
     const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImRhbmpvZDcwQGdtYWlsLmNvbSJ9.EjbdfitOYdeOzYSLHwU4o9WFKJTsfO6oARRbmD1pf8Q";
 
     let timeoutId;
 
-    if (dniInput && nombreInput && apellidoInput && dniIcon) {
-        dniInput.addEventListener("input", function() {
+    if (dniInput && nombreInput && apellidoInput && dniIcon && registerButton) {
+        dniInput.addEventListener("input", function () {
             const dni = dniInput.value;
 
             // Limpiar anteriores
             nombreInput.value = "";
             apellidoInput.value = "";
             dniIcon.innerHTML = "";
+            registerButton.disabled = true; // Desactiva temporalmente mientras valida
 
             if (/^\d{8}$/.test(dni)) {
                 clearTimeout(timeoutId);
@@ -73,21 +75,26 @@ function setupDniValidation() {
                                 nombreInput.value = data.nombres;
                                 apellidoInput.value = `${data.apellidoPaterno} ${data.apellidoMaterno}`;
                                 dniIcon.innerHTML = '<i style="color:green;" class="fas fa-check-circle"></i>';
+                                registerButton.disabled = false; // Activa si la validación fue exitosa
                             } else {
                                 dniIcon.innerHTML = '<i style="color:red;" class="fas fa-times-circle"></i>';
+                                registerButton.disabled = true;
                             }
                         })
                         .catch(error => {
                             console.error("Error al consultar DNI:", error);
                             dniIcon.innerHTML = '<i style="color:red;" class="fas fa-times-circle"></i>';
+                            registerButton.disabled = true;
                         });
                 }, 500);
             } else {
                 dniIcon.innerHTML = '<i style="color:red;" class="fas fa-times-circle"></i>';
+                registerButton.disabled = true;
             }
         });
     }
 }
+
 
 // -------------------------------
 // FUNCIONES PARA VALIDACIÓN EN TIEMPO REAL
