@@ -36,11 +36,11 @@ public class ServiceCita {
             throw new IllegalArgumentException("ID de horario no válido.");
         }
 
-        // 1. Validar que el usuario no tenga citas pendientes o reprogramadas (NUEVA LÓGICA)
-        List<String> estadosActivos = Arrays.asList("Pendiente", "Reprogramado");
+        // 1. Validar que el usuario no tenga citas pendientes, reprogramadas, confirmados
+        List<String> estadosActivos = Arrays.asList("Pendiente", "Reprogramado", "Confirmado");
         List<Cita> citasActivasUsuario = citaRepository.findCitasActivasPorUsuarioYEstados(cita.getIdUsuario(), estadosActivos);
         if (!citasActivasUsuario.isEmpty()) {
-            throw new IllegalStateException("Usted ya tiene una cita pendiente .Por favor espere a que su cita sea aceptada o cancelada antes de agendar una nueva.");
+            throw new IllegalStateException("Usted ya tiene una cita activa. Debe asistir a su cita o cancelarla para poder agendar una nueva.");
         }
 
         // 2. Obtener detalles del horario y médico
