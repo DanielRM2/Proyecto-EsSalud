@@ -49,6 +49,7 @@ public class ICitaRepositoryImpl implements ICitaRepository {
         List<Cita> citas = new ArrayList<>();
         String sql = "SELECT c.idCita, c.idUsuario, c.idMedico, c.idCentroMedico, c.idHorario, c.estado, " +
                 "h.fecha, h.hora, " +
+                "TIMESTAMP(h.fecha, h.hora) AS fechaHoraCita, " +
                 "CONCAT(m.nombre, ' ', m.apellido) AS nombreCompletoMedico, " +
                 "e.nombre AS nombreEspecialidad, cm.nombre AS nombreCentroMedico " +
                 "FROM Cita c " +
@@ -74,9 +75,8 @@ public class ICitaRepositoryImpl implements ICitaRepository {
                     cita.setIdHorario(rs.getInt("idHorario"));
                     cita.setEstado(rs.getString("estado"));
 
-                    LocalDateTime fechaCita = rs.getDate("fecha").toLocalDate()
-                            .atTime(rs.getTime("hora").toLocalTime());
-                    cita.setFechaCita(fechaCita);
+                    // Usar el timestamp combinado directamente
+                    cita.setFechaCita(rs.getTimestamp("fechaHoraCita").toLocalDateTime());
 
                     // Nuevos campos (asegúrate que tu clase Cita tenga estos setters)
                     cita.setNombreMedico(rs.getString("nombreCompletoMedico"));
@@ -198,6 +198,123 @@ public class ICitaRepositoryImpl implements ICitaRepository {
             e.printStackTrace(); // Para depuración
         }
         return null;
+    }
+
+    @Override
+    public List<Cita> findCitasPorUsuarioYEstado(int idUsuario, String estado) {
+        List<Cita> citas = new ArrayList<>();
+        String sql = "SELECT c.*, h.fecha, h.hora, CONCAT(m.nombre, ' ', m.apellido) as nombreMedico, " +
+                "e.nombre as nombreEspecialidad, cm.nombre as nombreCentro " +
+                "FROM Cita c " +
+                "JOIN HorarioDisponible h ON c.idHorario = h.idHorario " +
+                "JOIN Medico m ON c.idMedico = m.idMedico " +
+                "JOIN Especialidad e ON m.idEspecialidad = e.idEspecialidad " +
+                "JOIN CentroMedico cm ON c.idCentroMedico = cm.idCentroMedico " +
+                "WHERE c.idUsuario = ? AND TRIM(c.estado) = ? " +
+                "ORDER BY h.fecha DESC, h.hora DESC";
+
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setInt(1, idUsuario);
+            ps.setString(2, estado);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Cita cita = mapearCita(rs);
+                    citas.add(cita);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar citas por usuario y estado: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return citas;
+    }
+    
+    @Override
+    public int countCitasPorUsuario(int idUsuario) {
+        String sql = "SELECT COUNT(*) FROM Cita WHERE idUsuario = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setInt(1, idUsuario);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al contar citas por usuario: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    @Override
+    public int countCitasPorUsuarioYEstado(int idUsuario, String estado) {
+        String sql = "SELECT COUNT(*) FROM Cita WHERE idUsuario = ? AND TRIM(estado) = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setInt(1, idUsuario);
+            ps.setString(2, estado);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al contar citas por usuario y estado: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    @Override
+    public boolean actualizarEstadoCita(int idCita, String estado) {
+        String sql = "UPDATE Cita SET estado = ? WHERE idCita = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setString(1, estado);
+            ps.setInt(2, idCita);
+            
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar el estado de la cita: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Método auxiliar para mapear un ResultSet a un objeto Cita
+    private Cita mapearCita(ResultSet rs) throws SQLException {
+        Cita cita = new Cita();
+        cita.setIdCita(rs.getInt("idCita"));
+        cita.setIdUsuario(rs.getInt("idUsuario"));
+        cita.setIdMedico(rs.getInt("idMedico"));
+        cita.setIdCentroMedico(rs.getInt("idCentroMedico"));
+        cita.setIdHorario(rs.getInt("idHorario"));
+        cita.setEstado(rs.getString("estado"));
+        
+        // Mapear fecha y hora
+        java.sql.Date fecha = rs.getDate("fecha");
+        java.sql.Time hora = rs.getTime("hora");
+        if (fecha != null && hora != null) {
+            cita.setFechaCita(fecha.toLocalDate().atTime(hora.toLocalTime()));
+        }
+        
+        // Mapear campos adicionales
+        cita.setNombreMedico(rs.getString("nombreMedico"));
+        cita.setNombreEspecialidad(rs.getString("nombreEspecialidad"));
+        cita.setNombreCentro(rs.getString("nombreCentro"));
+        
+        return cita;
     }
 
     // <-- ¡MÉTODO AÑADIDO/VERIFICADO!

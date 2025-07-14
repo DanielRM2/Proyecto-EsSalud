@@ -15,6 +15,10 @@ public interface ICitaRepository {
     Cita obtenerPorId(int idCita);
     boolean haSidoReprogramada(int idCita);
 
-    // ¡NUEVO MÉTODO AÑADIDO!
+    // Métodos para el historial de citas
     List<Cita> findCitasActivasPorUsuarioYEstados(int idUsuario, List<String> estados);
+    List<Cita> findCitasPorUsuarioYEstado(int idUsuario, String estado);
+    int countCitasPorUsuario(int idUsuario);
+    int countCitasPorUsuarioYEstado(int idUsuario, String estado);
+    boolean actualizarEstadoCita(int idCita, String estado);
 }

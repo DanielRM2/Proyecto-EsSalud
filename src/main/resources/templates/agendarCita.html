@@ -44,9 +44,11 @@
                 <div class=bienvenida>
                     <h4>¡Agenda tu cita, <span th:text=${usuario.nombre}></span>!</h4>
                 </div>
-                <div class=navegacion-principal>
-                    <button class=boton-opciones onclick='location.href="/essalud/index"'>Mis citas</button>
-                    <button class="boton-opciones activo" onclick='location.href="/essalud/citas/agendar"'>Agendar cita</button>
+                <!-- Navegación -->
+                <div class="navegacion-principal mb-3">
+                    <a th:href="@{/essalud/index}" class="boton-opciones">Mis citas</a>
+                    <a th:href="@{/essalud/citas/agendar}" class="boton-opciones activo">Agendar cita</a>
+                    <a th:href="@{/essalud/citas/historial}" class="boton-opciones">Historial</a>
                 </div>
                 <div class=tarjeta-formulario>
                     <h3>Agendar nueva cita</h3>

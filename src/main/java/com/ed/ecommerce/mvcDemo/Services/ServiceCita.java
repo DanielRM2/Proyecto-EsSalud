@@ -7,7 +7,7 @@ import com.ed.ecommerce.mvcDemo.Exceptions.RecursoNoEncontradoException; // Aseg
 import com.ed.ecommerce.mvcDemo.Repository.ICitaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -21,8 +21,8 @@ public class ServiceCita {
 
     @Autowired
     public ServiceCita(ICitaRepository citaRepository,
-                       ServiceHorarioDisponible serviceHorarioDisponible,
-                       ServiceMedico serviceMedico) {
+                      ServiceHorarioDisponible serviceHorarioDisponible,
+                      ServiceMedico serviceMedico) {
         this.citaRepository = citaRepository;
         this.serviceHorarioDisponible = serviceHorarioDisponible;
         this.serviceMedico = serviceMedico;
@@ -80,12 +80,49 @@ public class ServiceCita {
         return citaRepository.listarCitasPorUsuario(idUsuario);
     }
 
-    public boolean cancelarCita(Integer idCita) {
+    public boolean cancelarCita(Integer idCita, HttpSession session) {
         if (idCita == null || idCita <= 0) {
             throw new IllegalArgumentException("ID de cita no válido.");
         }
-        // Nota: La lógica para liberar el horario se ha movido al CitaController para esta versión.
-        // Si quieres que ServiceCita lo maneje, debes obtener la cita aquí y luego llamar a serviceHorarioDisponible.
+
+        // Obtener o inicializar el contador de cancelaciones de la sesión
+        Integer contadorCancelaciones = (Integer) session.getAttribute("contadorCancelaciones");
+        LocalDateTime bloqueoHasta = (LocalDateTime) session.getAttribute("bloqueoHasta");
+
+        // Verificar si el usuario está bloqueado
+        if (bloqueoHasta != null && LocalDateTime.now().isBefore(bloqueoHasta)) {
+            throw new IllegalStateException("No puede cancelar más citas. Está bloqueado hasta: " + bloqueoHasta);
+        }
+
+        // Obtener la cita para validar que existe
+        Cita cita = obtenerPorId(idCita);
+        if (cita == null) {
+            throw new RecursoNoEncontradoException("Cita no encontrada.");
+        }
+
+        // Actualizar el contador de cancelaciones
+        if (contadorCancelaciones == null) {
+            contadorCancelaciones = 1;
+        } else {
+            contadorCancelaciones++;
+        }
+
+        // Aplicar bloqueo progresivo después de 2 cancelaciones
+        if (contadorCancelaciones > 2) {
+            int minutosBloqueo = (int) Math.pow(5, (contadorCancelaciones - 2)); // 5, 25, 125, 625 minutos...
+            bloqueoHasta = LocalDateTime.now().plusMinutes(minutosBloqueo);
+            session.setAttribute("bloqueoHasta", bloqueoHasta);
+            
+            // Mostrar mensaje con el tiempo de bloqueo
+            String mensajeBloqueo = String.format("Has alcanzado el límite de cancelaciones. " +
+                "Podrás agendar una nueva cita en %d minutos.", minutosBloqueo);
+            session.setAttribute("mensajeBloqueo", mensajeBloqueo);
+        }
+
+        // Actualizar el contador en la sesión
+        session.setAttribute("contadorCancelaciones", contadorCancelaciones);
+
+        // Cancelar la cita
         return citaRepository.cancelarCita(idCita);
     }
 
@@ -121,5 +158,35 @@ public class ServiceCita {
             throw new IllegalArgumentException("ID de cita no válido.");
         }
         return citaRepository.obtenerPorId(idCita);
+    }
+
+    // Obtener citas por usuario y estado
+    public List<Cita> obtenerCitasPorUsuarioYEstado(Integer idUsuario, String estado) {
+        if (idUsuario == null || idUsuario <= 0) {
+            throw new IllegalArgumentException("ID de usuario no válido.");
+        }
+        if (estado == null || estado.trim().isEmpty()) {
+            throw new IllegalArgumentException("El estado no puede estar vacío.");
+        }
+        return citaRepository.findCitasPorUsuarioYEstado(idUsuario, estado);
+    }
+
+    // Contar todas las citas de un usuario
+    public int contarCitasPorUsuario(Integer idUsuario) {
+        if (idUsuario == null || idUsuario <= 0) {
+            throw new IllegalArgumentException("ID de usuario no válido.");
+        }
+        return citaRepository.countCitasPorUsuario(idUsuario);
+    }
+
+    // Contar citas de un usuario por estado
+    public int contarCitasPorUsuarioYEstado(Integer idUsuario, String estado) {
+        if (idUsuario == null || idUsuario <= 0) {
+            throw new IllegalArgumentException("ID de usuario no válido.");
+        }
+        if (estado == null || estado.trim().isEmpty()) {
+            throw new IllegalArgumentException("El estado no puede estar vacío.");
+        }
+        return citaRepository.countCitasPorUsuarioYEstado(idUsuario, estado);
     }
 }

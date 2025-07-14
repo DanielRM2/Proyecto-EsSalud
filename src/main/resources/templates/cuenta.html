@@ -86,7 +86,18 @@
                     </div>
                     <div class=mb-3>
                         <label for=contrasena class=form-label>Nueva Contraseña</label>
-                        <input type=password class=form-control id=contrasena th:field=*{contrasena} required>
+                        <input type=password class=form-control id=contrasena th:field=*{contrasena} 
+                               pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).*$"
+                               title="La contraseña debe contener al menos una letra, un número y un carácter especial (@$!%*#?&)"
+                               onkeyup="validarContrasena()">
+                        <div class="form-text">
+                            La contraseña debe contener:
+                            <ul class="list-unstyled">
+                                <li id=letra class="text-danger">✓ Al menos una letra (a-z, A-Z)</li>
+                                <li id=numero class="text-danger">✓ Al menos un número (0-9)</li>
+                                <li id=especial class="text-danger">✓ Al menos un carácter especial (@$!%*#?&)</li>
+                            </ul>
+                        </div>
                     </div>
                     <div class=modal-footer>
                         <button type=button class="btn btn-secondary" data-bs-dismiss=modal>Cancelar</button>
@@ -97,7 +108,67 @@
         </div>
     </div>
 </div>
-<script>function mostrarAlerta(){localStorage.setItem("cambioRealizado","true")}window.onload=function(){if("true"===localStorage.getItem("cambioRealizado")){document.getElementById("alertaExito").classList.remove("d-none"),localStorage.removeItem("cambioRealizado")}}</script>
+<script>
+    function mostrarAlerta(){
+        localStorage.setItem("cambioRealizado","true");
+    }
+    
+    function validarContrasena() {
+        const contrasena = document.getElementById('contrasena').value;
+        const letra = document.getElementById('letra');
+        const numero = document.getElementById('numero');
+        const especial = document.getElementById('especial');
+        
+        // Validar letra
+        if (/[A-Za-z]/.test(contrasena)) {
+            letra.classList.remove('text-danger');
+            letra.classList.add('text-success');
+        } else {
+            letra.classList.remove('text-success');
+            letra.classList.add('text-danger');
+        }
+        
+        // Validar número
+        if (/\d/.test(contrasena)) {
+            numero.classList.remove('text-danger');
+            numero.classList.add('text-success');
+        } else {
+            numero.classList.remove('text-success');
+            numero.classList.add('text-danger');
+        }
+        
+        // Validar carácter especial
+        if (/[@$!%*#?&]/.test(contrasena)) {
+            especial.classList.remove('text-danger');
+            especial.classList.add('text-success');
+        } else {
+            especial.classList.remove('text-success');
+            especial.classList.add('text-danger');
+        }
+    }
+    
+    // Validar formulario antes de enviar
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const contrasena = document.getElementById('contrasena').value;
+        if (contrasena && !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).*$/.test(contrasena)) {
+            e.preventDefault();
+            alert('La contraseña debe contener al menos una letra, un número y un carácter especial (@$!%*#?&)');
+        } else {
+            mostrarAlerta();
+        }
+    });
+    
+    window.onload = function() {
+        if ("true" === localStorage.getItem("cambioRealizado")) {
+            document.getElementById("alertaExito").classList.remove("d-none");
+            localStorage.removeItem("cambioRealizado");
+        }
+        // Inicializar validación si hay algo escrito
+        if (document.getElementById('contrasena').value) {
+            validarContrasena();
+        }
+    };
+</script>
 <script type=module src=/js/bot.min.js></script>
 <script src=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js></script>
 </body>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang=es xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset=UTF-8>
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <title>Historial de Citas - EsSalud</title>
+    <link href=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css rel=stylesheet>
+    <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css>
+    <link rel=icon href=/images/icono.ico type=image/x-icon>
+    <link rel=stylesheet href=/css/general.css>
+    <link rel=stylesheet href=/css/index.css>
+</head>
+<body>
+<div class=container-fluid>
+    <div class="row p-2">
+        <!-- Barra lateral -->
+        <div class=col-md-3>
+            <div class="barra-lateral text-center">
+                <img src=/images/perfil-del-usuario.png class=foto-perfil alt=Perfil>
+                <h5><span th:text="${usuario.nombre + ' ' + usuario.apellido}"></span></h5>
+                <p><span th:text=${usuario.correo}></span></p>
+                <br>
+                <button class="boton-menu activo" onclick='location.href="/essalud/index"'>
+                    <i class="bi bi-calendar-check"></i> Citas
+                </button>
+                <button class=boton-menu onclick='location.href="/essalud/cuenta"'>
+                    <i class="bi bi-person"></i> Detalles de la cuenta
+                </button>
+                <button class=boton-menu onclick='location.href="/essalud/logout"'>
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </button>
+                <div class=pie-barra>
+                    <img src=/images/logo.png alt="EsSalud logo" class=logo-essalud>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class=col-md-9>
+            <div class=contenido-principal>
+                <div class=bienvenida>
+                    <h4>Historial de Citas</h4>
+                </div>
+
+                <!-- Navegación -->
+                <div class="navegacion-principal mb-3">
+                    <a th:href="@{/essalud/index}" class="boton-opciones">Mis citas</a>
+                    <a th:href="@{/essalud/citas/agendar}" class="boton-opciones">Agendar cita</a>
+                    <a th:href="@{/essalud/citas/historial}" class="boton-opciones activo">Historial</a>
+                </div>
+
+                <!-- Barra de búsqueda -->
+                <div class="mb-4">
+                    <form th:action="@{/essalud/citas/historial}" method="get" class="mb-4">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="busqueda" name="busqueda" 
+                                           th:value="${busqueda != null} ? ${busqueda} : ''"
+                                           placeholder="Buscar por ID de cita">
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="bi bi-search"></i> Buscar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Filtros -->
+                <div class="filtros mb-4">
+                    <div class="row g-3 align-items-center">
+                        <div class=col-md-8>
+                            <div class="d-flex justify-content-end">
+                                <div class="card text-dark bg-light me-2 mb-2" style="min-width: 120px; border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);">
+                                    <div class="card-body text-center p-2">
+                                        <h6 class="card-title mb-1" style="font-size: 0.9rem; font-weight: 600; color: #000;">Total</h6>
+                                        <p class="card-text mb-0" style="font-size: 1.5rem; font-weight: 700; color: #000;" th:text="${totalCitas}"></p>
+                                    </div>
+                                </div>
+
+                                <div class="card text-dark bg-light me-2 mb-2" style="min-width: 120px; border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1); border-left: 4px solid #198754 !important;">
+                                    <div class="card-body text-center p-2">
+                                        <h6 class="card-title mb-1" style="font-size: 0.9rem; font-weight: 600; color: #000;">Asistidas</h6>
+                                        <p class="card-text mb-0" style="font-size: 1.5rem; font-weight: 700; color: #000;" th:text="${citasAsistidas}"></p>
+                                    </div>
+                                </div>
+                                <div class="card text-dark bg-light mb-2" style="min-width: 120px; border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1); border-left: 4px solid #dc3545 !important;">
+                                    <div class="card-body text-center p-2">
+                                        <h6 class="card-title mb-1" style="font-size: 0.9rem; font-weight: 600; color: #000;">Canceladas</h6>
+                                        <p class="card-text mb-0" style="font-size: 1.5rem; font-weight: 700; color: #000;" th:text="${citasCanceladas}"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensajes de éxito/error -->
+                <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show" role=alert>
+                    <span th:text="${mensaje}"></span>
+                    <button type=button class=btn-close data-bs-dismiss=alert aria-label=Close></button>
+                </div>
+                <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role=alert>
+                    <span th:text="${error}"></span>
+                    <button type=button class=btn-close data-bs-dismiss=alert aria-label=Close></button>
+                </div>
+
+                <!-- Lista de citas -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID Cita</th>
+                                <th>Fecha y Hora</th>
+                                <th>Médico</th>
+                                <th>Especialidad</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="cita : ${citas}" th:class="${(cita.estado == 'Cancelado' ? 'table-danger' : '') + ' ' + (cita.estado == 'Asistió' ? 'table-success' : '')}">
+                                <td th:text=${cita.idCita}></td>
+                                <td th:text="${#temporals.format(cita.fechaCita, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td th:text=${cita.nombreMedico}></td>
+                                <td th:text=${cita.nombreEspecialidad}></td>
+                                <td>
+                                    <span th:class="${(cita.estado == 'Pendiente' ? 'badge bg-warning' : '') + ' ' + (cita.estado == 'Asistido' ? 'badge bg-success' : '') + ' ' + (cita.estado == 'Cancelado' ? 'badge bg-danger' : '')}" th:text="${cita.estado}"></span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(citas)}">
+                                <td colspan="6" class="text-center">No se encontraron citas</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para ver detalles de la cita -->
+<div class="modal fade" id=modalDetalleCita tabindex=-1 aria-hidden=true>
+    <div class="modal-dialog modal-lg">
+        <div class=modal-content>
+            <div class=modal-header>
+                <h5 class=modal-title>Detalles de la Cita</h5>
+                <button type=button class=btn-close data-bs-dismiss=modal aria-label=Close></button>
+            </div>
+            <div class=modal-body id=detalleCitaContent>
+                <!-- Los detalles de la cita se cargarán aquí dinámicamente -->
+            </div>
+            <div class=modal-footer>
+                <button type=button class="btn btn-secondary" data-bs-dismiss=modal>Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js></script>
+<script>
+    // Función para filtrar citas por estado
+    function filtrarCitas() {
+        const estado = document.getElementById('filtroEstado').value;
+        let url = '/essalud/citas/historial';
+        if (estado) {
+            url += '?estado=' + encodeURIComponent(estado);
+        }
+        window.location.href = url;
+    }
+
+    // Función para cargar los detalles de una cita
+    function verDetalleCita(idCita) {
+        // Aquí podrías hacer una llamada AJAX para obtener más detalles de la cita
+        // Por ahora, mostramos un mensaje simple
+        const detalle = `
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>ID Cita:</strong> <span>${idCita}</span></p>
+                    <p><strong>Fecha y Hora:</strong> <span id="fechaCita"></span></p>
+                    <p><strong>Médico:</strong> <span id="medico"></span></p>
+                    <p><strong>Especialidad:</strong> <span id="especialidad"></span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Estado:</strong> <span id="estado" class="badge"></span></p>
+                    <p><strong>Centro Médico:</strong> <span id="centroMedico"></span></p>
+                    <p><strong>Dirección:</strong> <span id="direccion"></span></p>
+                </div>
+            </div>
+            <div class="mt-3">
+                <h6>Notas:</h6>
+                <p id="notas" class="text-muted">No hay notas adicionales para esta cita.</p>
+            </div>
+        `;
+        
+        document.getElementById('detalleCitaContent').innerHTML = detalle;
+        
+        // Aquí iría la llamada AJAX para obtener los detalles reales
+        // Por ahora, solo mostramos el ID
+        document.getElementById('fechaCita').textContent = 'Cargando...';
+        
+        // Mostrar el modal
+        const modal = new bootstrap.Modal(document.getElementById('modalDetalleCita'));
+        modal.show();
+    }
+
+    // Cerrar automáticamente los mensajes después de 5 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+    });
+</script>
+</body>
+</html>

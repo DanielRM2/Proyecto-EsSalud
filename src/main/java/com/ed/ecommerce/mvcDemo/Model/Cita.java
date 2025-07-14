@@ -15,7 +15,7 @@ public class Cita {
     private String nombreCentro;
     private String nombreEspecialidad;
 
-    public static final List<String> ESTADOS_VALIDOS = List.of("Pendiente", "Confirmado", "Cancelado", "Completado", "Reprogramado");
+    public static final List<String> ESTADOS_VALIDOS = List.of("Pendiente", "Confirmado", "Cancelado", "Asistido", "Reprogramado");
 
     public Cita() {}
 
@@ -56,10 +56,13 @@ public class Cita {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) {
-        if (estado != null && !ESTADOS_VALIDOS.contains(estado)) {
-            throw new IllegalArgumentException("Estado no válido. Use: " + ESTADOS_VALIDOS);
+        if (estado != null) {
+            estado = estado.trim(); // Trim the input string
+            if (!ESTADOS_VALIDOS.contains(estado)) {
+                throw new IllegalArgumentException("Estado no válido. Use: " + ESTADOS_VALIDOS);
+            }
+            this.estado = estado;
         }
-        this.estado = estado;
     }
 
     public String getNombreMedico() { return nombreMedico; }

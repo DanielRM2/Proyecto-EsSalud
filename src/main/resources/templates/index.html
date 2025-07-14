@@ -42,8 +42,9 @@
                     <h4>¡Bienvenido de nuevo, <span th:text=${usuario.nombre}></span>!</h4>
                 </div>
                 <div class=navegacion-principal>
-                    <button class="boton-opciones activo" onclick='location.href="/essalud/index"'>Mis citas</button>
-                    <button class=boton-opciones onclick='location.href="/essalud/citas/agendar"'>Agendar cita</button>
+                    <a th:href="@{/essalud/index}" class="boton-opciones activo">Mis citas</a>
+                    <a th:href="@{/essalud/citas/agendar}" class="boton-opciones">Agendar cita</a>
+                    <a th:href="@{/essalud/citas/historial}" class="boton-opciones">Historial</a>
                 </div>
                 <div class=barra-busqueda>
                     <input class=input-busqueda id=inputBuscarCita placeholder="Buscar por código...">
